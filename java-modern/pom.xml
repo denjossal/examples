@@ -13,7 +13,7 @@
 
     <artifactId>java-modern</artifactId>
     <name>Modern Java</name>
-    <description>Java 17+ features, virtual threads, Stream API depth</description>
+    <description>Java 8-25 evolution, virtual threads, Stream Gatherers, structured concurrency</description>
 
     <build>
         <plugins>

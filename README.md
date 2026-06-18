@@ -8,14 +8,14 @@ A multi-module Maven project for structured Java learning, organized by topic.
 |--------|-------------|--------|
 | [dsa](./dsa) | Data structures implemented from scratch | In progress |
 | [algorithms](./algorithms) | LeetCode solutions organized by pattern | In progress |
-| [java-modern](./java-modern) | Java 17+ features, virtual threads, Stream API | In progress |
+| [java-modern](./java-modern) | Java 8→25 evolution, virtual threads, Stream Gatherers | In progress |
 | [spring-boot](./spring-boot) | Spring Boot examples & microservices patterns | Planned |
 | [ai-sdlc](./ai-sdlc) | AI-SDLC playbook and demos | Planned |
 | [aws](./aws) | AWS serverless & event-driven examples | Planned |
 
 ## Tech Stack
 
-- Java 17 (targeting 21)
+- Java 25 (with --enable-preview)
 - Spring Boot 3.4.x
 - JUnit 5 + AssertJ
 - Maven (multi-module)
