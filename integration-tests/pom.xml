@@ -57,12 +57,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Kafka Client -->
+        <!-- Kafka Client (used in both main Spring Kafka and raw test code) -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka-clients.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- AWS SDK v2 -->
@@ -100,6 +99,37 @@
             <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Spring Boot (for Spring-based integration tests) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- AWS SDK Lambda (for invoking Lambda on LocalStack) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>lambda</artifactId>
+            <version>${awssdk.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -109,6 +139,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <release>21</release>
+                    <compilerArgs combine.self="override">
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -116,6 +149,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skipTests>${skipIntegrationTests}</skipTests>
+                    <jvm>${user.home}/.sdkman/candidates/java/21.0.8-amzn/bin/java</jvm>
+                    <argLine></argLine>
                     <environmentVariables>
                         <DOCKER_HOST>unix:///Users/Dennis_Salcedo/.colima/default/docker.sock</DOCKER_HOST>
                         <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>/var/run/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
