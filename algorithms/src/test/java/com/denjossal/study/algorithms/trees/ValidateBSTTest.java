@@ -1,8 +1,9 @@
 package com.denjossal.study.algorithms.trees;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.denjossal.study.algorithms.trees.ValidateBST.TreeNode;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.*;
 
 class ValidateBSTTest {
 

@@ -63,8 +63,8 @@ public class AgentOrchestrator {
      * Router: classifies input and dispatches to the appropriate agent.
      * Use when: different input types require different processing.
      */
-    public static AgentResult route(String input, Function<String, String> classifier,
-                                    Map<String, Agent> routes, Agent fallback) {
+    public static AgentResult route(
+            String input, Function<String, String> classifier, Map<String, Agent> routes, Agent fallback) {
         String category = classifier.apply(input);
         var agent = routes.getOrDefault(category, fallback);
         return agent.execute(input);
@@ -74,9 +74,8 @@ public class AgentOrchestrator {
      * Loop with quality gate: iteratively refine until predicate passes or max iterations.
      * Use when: output quality is uncertain (code review → fix → re-review).
      */
-    public static List<AgentResult> loopUntil(String input, Agent agent,
-                                              Function<AgentResult, Boolean> qualityGate,
-                                              int maxIterations) {
+    public static List<AgentResult> loopUntil(
+            String input, Agent agent, Function<AgentResult, Boolean> qualityGate, int maxIterations) {
         var results = new ArrayList<AgentResult>();
         String current = input;
 

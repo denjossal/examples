@@ -63,8 +63,7 @@ public class SingleTableDesign {
      * PK: USER#userId, SK: PROFILE
      */
     public void createUser(String userId, String name, String email) {
-        putItem("USER#" + userId, "PROFILE",
-                Map.of("name", name, "email", email, "type", "User"));
+        putItem("USER#" + userId, "PROFILE", Map.of("name", name, "email", email, "type", "User"));
     }
 
     /**
@@ -72,8 +71,7 @@ public class SingleTableDesign {
      * PK: USER#userId, SK: ORDER#orderId
      */
     public void createOrder(String userId, String orderId, double total, String status) {
-        putItem("USER#" + userId, "ORDER#" + orderId,
-                Map.of("total", total, "status", status, "type", "Order"));
+        putItem("USER#" + userId, "ORDER#" + orderId, Map.of("total", total, "status", status, "type", "Order"));
     }
 
     /**

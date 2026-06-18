@@ -1,17 +1,16 @@
 package com.denjossal.study.integration.distributed;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.sql.*;
+import java.time.Duration;
+import java.util.*;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.kafka.KafkaContainer;
-
-import java.sql.*;
-import java.time.Duration;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Transactional Outbox + Poller — guaranteed at-least-once event delivery.
@@ -31,8 +30,8 @@ import static org.assertj.core.api.Assertions.*;
 class OutboxPollerTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("outbox_db");
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName("outbox_db");
 
     @Container
     static final KafkaContainer kafka = new KafkaContainer("apache/kafka:3.8.0");
@@ -41,11 +40,11 @@ class OutboxPollerTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+        conn = DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
 
         try (var stmt = conn.createStatement()) {
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS orders (
                         id VARCHAR(50) PRIMARY KEY,
                         customer_id VARCHAR(50),
@@ -53,7 +52,8 @@ class OutboxPollerTest {
                         status VARCHAR(20)
                     )
                     """);
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS outbox (
                         id SERIAL PRIMARY KEY,
                         aggregate_id VARCHAR(50) NOT NULL,
@@ -80,8 +80,8 @@ class OutboxPollerTest {
         conn.setAutoCommit(false);
 
         String orderId = "ORD-100";
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO orders (id, customer_id, total, status) VALUES (?, ?, ?, ?)")) {
+        try (var ps =
+                conn.prepareStatement("INSERT INTO orders (id, customer_id, total, status) VALUES (?, ?, ?, ?)")) {
             ps.setString(1, orderId);
             ps.setString(2, "CUST-1");
             ps.setDouble(3, 199.99);
@@ -89,8 +89,8 @@ class OutboxPollerTest {
             ps.executeUpdate();
         }
 
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO outbox (aggregate_id, event_type, payload) VALUES (?, ?, ?)")) {
+        try (var ps =
+                conn.prepareStatement("INSERT INTO outbox (aggregate_id, event_type, payload) VALUES (?, ?, ?)")) {
             ps.setString(1, orderId);
             ps.setString(2, "OrderPlaced");
             ps.setString(3, """
@@ -117,7 +117,9 @@ class OutboxPollerTest {
     void shouldPollOutboxAndPublishToKafka() throws Exception {
         // Write 3 events to outbox
         for (int i = 1; i <= 3; i++) {
-            writeToOutbox("ORD-" + i, "OrderPlaced",
+            writeToOutbox(
+                    "ORD-" + i,
+                    "OrderPlaced",
                     """
                     {"orderId":"ORD-%d","total":%d}""".formatted(i, i * 100));
         }
@@ -154,8 +156,8 @@ class OutboxPollerTest {
     // ─── Implementation ─────────────────────────────────────────────────────
 
     private void writeToOutbox(String aggregateId, String eventType, String payload) throws SQLException {
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO outbox (aggregate_id, event_type, payload) VALUES (?, ?, ?)")) {
+        try (var ps =
+                conn.prepareStatement("INSERT INTO outbox (aggregate_id, event_type, payload) VALUES (?, ?, ?)")) {
             ps.setString(1, aggregateId);
             ps.setString(2, eventType);
             ps.setString(3, payload);
@@ -177,9 +179,9 @@ class OutboxPollerTest {
                 try (var producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(Map.of(
                         "bootstrap.servers", kafka.getBootstrapServers(),
                         "key.serializer", "org.apache.kafka.common.serialization.StringSerializer",
-                        "value.serializer", "org.apache.kafka.common.serialization.StringSerializer"
-                ))) {
-                    producer.send(new org.apache.kafka.clients.producer.ProducerRecord<>(topic, key, payload)).get();
+                        "value.serializer", "org.apache.kafka.common.serialization.StringSerializer"))) {
+                    producer.send(new org.apache.kafka.clients.producer.ProducerRecord<>(topic, key, payload))
+                            .get();
                 }
 
                 // Mark published
@@ -199,8 +201,7 @@ class OutboxPollerTest {
                 ConsumerConfig.GROUP_ID_CONFIG, "outbox-verify-" + UUID.randomUUID(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()
-        ))) {
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()))) {
             consumer.subscribe(List.of(topic));
             var results = new ArrayList<String>();
             long deadline = System.currentTimeMillis() + 10_000;

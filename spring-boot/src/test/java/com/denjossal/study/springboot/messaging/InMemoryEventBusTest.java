@@ -1,10 +1,9 @@
 package com.denjossal.study.springboot.messaging;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class InMemoryEventBusTest {
 
@@ -48,7 +47,9 @@ class InMemoryEventBusTest {
     @Test
     void shouldSendToLDQOnHandlerFailure() {
         var bus = new InMemoryEventBus();
-        bus.subscribe("risky", e -> { throw new RuntimeException("boom"); });
+        bus.subscribe("risky", e -> {
+            throw new RuntimeException("boom");
+        });
 
         bus.publish(Event.of("risky", "src", "data"));
 

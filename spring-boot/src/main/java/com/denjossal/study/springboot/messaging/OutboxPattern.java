@@ -19,13 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class OutboxPattern {
 
     public record OutboxEntry(
-            String id,
-            String aggregateId,
-            String eventType,
-            String payload,
-            Instant createdAt,
-            boolean published
-    ) {}
+            String id, String aggregateId, String eventType, String payload, Instant createdAt, boolean published) {}
 
     private final List<OutboxEntry> outbox = new CopyOnWriteArrayList<>();
     private final List<String> publishedEvents = new CopyOnWriteArrayList<>();
@@ -34,14 +28,8 @@ public class OutboxPattern {
      * Simulates: save entity + write outbox entry in same "transaction".
      */
     public OutboxEntry saveWithOutbox(String aggregateId, String eventType, String payload) {
-        var entry = new OutboxEntry(
-                UUID.randomUUID().toString(),
-                aggregateId,
-                eventType,
-                payload,
-                Instant.now(),
-                false
-        );
+        var entry =
+                new OutboxEntry(UUID.randomUUID().toString(), aggregateId, eventType, payload, Instant.now(), false);
         outbox.add(entry);
         return entry;
     }
@@ -56,10 +44,15 @@ public class OutboxPattern {
             var entry = outbox.get(i);
             if (!entry.published()) {
                 publishedEvents.add(entry.payload());
-                outbox.set(i, new OutboxEntry(
-                        entry.id(), entry.aggregateId(), entry.eventType(),
-                        entry.payload(), entry.createdAt(), true
-                ));
+                outbox.set(
+                        i,
+                        new OutboxEntry(
+                                entry.id(),
+                                entry.aggregateId(),
+                                entry.eventType(),
+                                entry.payload(),
+                                entry.createdAt(),
+                                true));
                 published++;
             }
         }

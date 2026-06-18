@@ -1,11 +1,9 @@
 package com.denjossal.study.springboot.resilience;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class BulkheadTest {
 
@@ -24,7 +22,11 @@ class BulkheadTest {
         // Fill the single permit with a blocking task
         var executor = Executors.newFixedThreadPool(2);
         executor.submit(() -> bulkhead.execute(() -> {
-            try { latch.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             return "done";
         }));
 

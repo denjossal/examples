@@ -1,8 +1,8 @@
 package com.denjossal.study.modern.concurrency;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class VirtualThreadDemoTest {
 

@@ -2,8 +2,8 @@ package com.denjossal.study.modern.streams;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,12 +28,10 @@ public class StreamPerformance {
             return result;
         });
 
-        List<String> parallelStreamResult = measurePerformance("Parallel Stream", () ->
-                userList.parallelStream()
-                        .filter(user -> simulateIntensiveOperation(user.age()) > 50)
-                        .map(User::fullName)
-                        .toList()
-        );
+        List<String> parallelStreamResult = measurePerformance("Parallel Stream", () -> userList.parallelStream()
+                .filter(user -> simulateIntensiveOperation(user.age()) > 50)
+                .map(User::fullName)
+                .toList());
 
         if (logger.isLoggable(Level.INFO)) {
             logger.info(String.format("Size of the for-loop list %d", forLoopResult.size()));
@@ -65,11 +63,16 @@ public class StreamPerformance {
         List<User> userList = new ArrayList<>(numUsers);
 
         List<String> nameList = List.of(
-                "Dianne Hall", "Harvey Douglas", "Elena Waters",
-                "Gilbert Morris", "Callum Warburton", "Sheila Ware",
-                "Ethel Chaplin", "Godfrey Prescott", "Faisal Morris",
-                "George Percival"
-        );
+                "Dianne Hall",
+                "Harvey Douglas",
+                "Elena Waters",
+                "Gilbert Morris",
+                "Callum Warburton",
+                "Sheila Ware",
+                "Ethel Chaplin",
+                "Godfrey Prescott",
+                "Faisal Morris",
+                "George Percival");
 
         for (int i = 0; i < numUsers; i++) {
             String fullName = nameList.get(random.nextInt(nameList.size()));

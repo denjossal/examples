@@ -1,10 +1,9 @@
 package com.denjossal.study.algorithms.arrays;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class GroupAnagramsTest {
 
@@ -16,12 +15,9 @@ class GroupAnagramsTest {
         List<List<String>> result = solution.solve(input);
 
         assertThat(result).hasSize(3);
-        assertThat(result).anySatisfy(group ->
-                assertThat(group).containsExactlyInAnyOrder("eat", "tea", "ate"));
-        assertThat(result).anySatisfy(group ->
-                assertThat(group).containsExactlyInAnyOrder("tan", "nat"));
-        assertThat(result).anySatisfy(group ->
-                assertThat(group).containsExactlyInAnyOrder("bat"));
+        assertThat(result).anySatisfy(group -> assertThat(group).containsExactlyInAnyOrder("eat", "tea", "ate"));
+        assertThat(result).anySatisfy(group -> assertThat(group).containsExactlyInAnyOrder("tan", "nat"));
+        assertThat(result).anySatisfy(group -> assertThat(group).containsExactlyInAnyOrder("bat"));
     }
 
     @Test

@@ -1,11 +1,10 @@
 package com.denjossal.study.springboot.api;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller demonstrating proper API design:
@@ -21,7 +20,9 @@ public class UserController {
     private final Map<String, UserDto> store = new ConcurrentHashMap<>();
 
     public record UserDto(String id, String name, String email, int age) {}
+
     public record CreateUserRequest(String name, String email, int age) {}
+
     public record UpdateUserRequest(String name, String email) {}
 
     @GetMapping
@@ -41,9 +42,7 @@ public class UserController {
         var id = UUID.randomUUID().toString();
         var user = new UserDto(id, request.name(), request.email(), request.age());
         store.put(id, user);
-        return ResponseEntity
-                .created(URI.create("/api/v1/users/" + id))
-                .body(user);
+        return ResponseEntity.created(URI.create("/api/v1/users/" + id)).body(user);
     }
 
     @PutMapping("/{id}")

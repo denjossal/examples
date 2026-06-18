@@ -1,5 +1,9 @@
 package com.denjossal.study.integration.aws;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
+
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.*;
@@ -9,11 +13,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.*;
 import software.amazon.awssdk.services.sqs.model.*;
 
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
-
 /**
  * Real SQS integration test using LocalStack.
  * Demonstrates: send/receive, visibility timeout, DLQ, batch operations.
@@ -22,9 +21,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class SQSIntegrationTest {
 
     @Container
-    static final LocalStackContainer localstack = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:4.0"))
-            .withServices(SQS);
+    static final LocalStackContainer localstack =
+            new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.0")).withServices(SQS);
 
     private SqsClient sqs;
 
@@ -53,10 +51,11 @@ class SQSIntegrationTest {
                 .build());
 
         var messages = sqs.receiveMessage(ReceiveMessageRequest.builder()
-                .queueUrl(queueUrl)
-                .maxNumberOfMessages(10)
-                .waitTimeSeconds(5)
-                .build()).messages();
+                        .queueUrl(queueUrl)
+                        .maxNumberOfMessages(10)
+                        .waitTimeSeconds(5)
+                        .build())
+                .messages();
 
         assertThat(messages).hasSize(1);
         assertThat(messages.get(0).body()).contains("ORD-123");
@@ -94,10 +93,11 @@ class SQSIntegrationTest {
 
         // Receive
         var messages = sqs.receiveMessage(ReceiveMessageRequest.builder()
-                .queueUrl(queueUrl)
-                .maxNumberOfMessages(1)
-                .waitTimeSeconds(5)
-                .build()).messages();
+                        .queueUrl(queueUrl)
+                        .maxNumberOfMessages(1)
+                        .waitTimeSeconds(5)
+                        .build())
+                .messages();
 
         assertThat(messages).hasSize(1);
 
@@ -109,10 +109,11 @@ class SQSIntegrationTest {
 
         // Verify queue is empty
         var remaining = sqs.receiveMessage(ReceiveMessageRequest.builder()
-                .queueUrl(queueUrl)
-                .maxNumberOfMessages(1)
-                .waitTimeSeconds(1)
-                .build()).messages();
+                        .queueUrl(queueUrl)
+                        .maxNumberOfMessages(1)
+                        .waitTimeSeconds(1)
+                        .build())
+                .messages();
 
         assertThat(remaining).isEmpty();
     }
@@ -125,18 +126,24 @@ class SQSIntegrationTest {
                 .queueUrl(queueUrl)
                 .messageBody("order-event")
                 .messageAttributes(Map.of(
-                        "eventType", MessageAttributeValue.builder()
-                                .dataType("String").stringValue("OrderPlaced").build(),
-                        "priority", MessageAttributeValue.builder()
-                                .dataType("Number").stringValue("1").build()
-                ))
+                        "eventType",
+                                MessageAttributeValue.builder()
+                                        .dataType("String")
+                                        .stringValue("OrderPlaced")
+                                        .build(),
+                        "priority",
+                                MessageAttributeValue.builder()
+                                        .dataType("Number")
+                                        .stringValue("1")
+                                        .build()))
                 .build());
 
         var messages = sqs.receiveMessage(ReceiveMessageRequest.builder()
-                .queueUrl(queueUrl)
-                .messageAttributeNames("All")
-                .waitTimeSeconds(5)
-                .build()).messages();
+                        .queueUrl(queueUrl)
+                        .messageAttributeNames("All")
+                        .waitTimeSeconds(5)
+                        .build())
+                .messages();
 
         assertThat(messages.get(0).messageAttributes().get("eventType").stringValue())
                 .isEqualTo("OrderPlaced");
@@ -145,8 +152,7 @@ class SQSIntegrationTest {
     }
 
     private String createQueue(String name) {
-        return sqs.createQueue(CreateQueueRequest.builder()
-                .queueName(name)
-                .build()).queueUrl();
+        return sqs.createQueue(CreateQueueRequest.builder().queueName(name).build())
+                .queueUrl();
     }
 }

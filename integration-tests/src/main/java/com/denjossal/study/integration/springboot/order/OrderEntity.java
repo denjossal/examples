@@ -39,17 +39,42 @@ public class OrderEntity {
         this.total = total;
     }
 
-    public String getId() { return id; }
-    public String getCustomerId() { return customerId; }
-    public String getProductId() { return productId; }
-    public int getQuantity() { return quantity; }
-    public double getTotal() { return total; }
-    public OrderStatus getStatus() { return status; }
-    public Instant getCreatedAt() { return createdAt; }
+    public String getId() {
+        return id;
+    }
 
-    public void setStatus(OrderStatus status) { this.status = status; }
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, SHIPPED, CANCELLED
+        PENDING,
+        CONFIRMED,
+        SHIPPED,
+        CANCELLED
     }
 }

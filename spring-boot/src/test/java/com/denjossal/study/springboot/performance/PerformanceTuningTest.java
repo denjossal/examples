@@ -1,20 +1,17 @@
 package com.denjossal.study.springboot.performance;
 
-import com.denjossal.study.springboot.performance.PerformanceTuning.*;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
+import com.denjossal.study.springboot.performance.PerformanceTuning.*;
 import java.util.*;
 import java.util.stream.*;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class PerformanceTuningTest {
 
     @Test
     void shouldProcessInChunks() {
-        var data = IntStream.range(0, 1000)
-                .mapToObj(i -> "item-" + i)
-                .toList();
+        var data = IntStream.range(0, 1000).mapToObj(i -> "item-" + i).toList();
 
         long total = PerformanceTuning.processInChunks(data, 100);
 

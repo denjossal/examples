@@ -17,7 +17,9 @@ public class InMemoryEventBus {
     private final List<Event<?>> deadLetterQueue = new CopyOnWriteArrayList<>();
 
     public void subscribe(String eventType, Consumer<Event<?>> handler) {
-        subscribers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>()).add(handler);
+        subscribers
+                .computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>())
+                .add(handler);
     }
 
     public void publish(Event<?> event) {

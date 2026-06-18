@@ -1,7 +1,5 @@
 package com.denjossal.study.modern.streams;
 
-import java.util.UUID;
-
 public record User(String userId, String fullName, int age) {
 
     @Override

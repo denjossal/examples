@@ -1,9 +1,9 @@
 package com.denjossal.study.aisdlc.automation;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.denjossal.study.aisdlc.automation.ImpactMeasurement.*;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.*;
 
 class ImpactMeasurementTest {
 

@@ -21,7 +21,11 @@ import java.util.function.Supplier;
  */
 public class CircuitBreaker<T> {
 
-    public enum State { CLOSED, OPEN, HALF_OPEN }
+    public enum State {
+        CLOSED,
+        OPEN,
+        HALF_OPEN
+    }
 
     private final int failureThreshold;
     private final long openDurationMs;
@@ -78,7 +82,6 @@ public class CircuitBreaker<T> {
     }
 
     private boolean isTimeoutExpired() {
-        return openedAt != null &&
-                Instant.now().toEpochMilli() - openedAt.toEpochMilli() >= openDurationMs;
+        return openedAt != null && Instant.now().toEpochMilli() - openedAt.toEpochMilli() >= openDurationMs;
     }
 }

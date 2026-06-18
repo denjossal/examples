@@ -14,6 +14,7 @@ import java.util.stream.*;
 public class StreamAdvanced {
 
     public record Order(String customer, List<Item> items) {}
+
     public record Item(String name, double price, int quantity) {}
 
     /**
@@ -25,9 +26,7 @@ public class StreamAdvanced {
                         Order::customer,
                         Collectors.flatMapping(
                                 order -> order.items().stream(),
-                                Collectors.summingDouble(item -> item.price() * item.quantity())
-                        )
-                ));
+                                Collectors.summingDouble(item -> item.price() * item.quantity()))));
     }
 
     /**
@@ -46,8 +45,7 @@ public class StreamAdvanced {
      * partitioningBy: split items into expensive (>100) and cheap.
      */
     public static Map<Boolean, List<Item>> partitionByPrice(List<Item> items, double threshold) {
-        return items.stream()
-                .collect(Collectors.partitioningBy(item -> item.price() > threshold));
+        return items.stream().collect(Collectors.partitioningBy(item -> item.price() > threshold));
     }
 
     /**
@@ -57,13 +55,8 @@ public class StreamAdvanced {
         return items.stream()
                 .map(Item::price)
                 .collect(Collectors.teeing(
-                        Collectors.minBy(Double::compareTo),
-                        Collectors.maxBy(Double::compareTo),
-                        (min, max) -> new double[]{
-                                min.orElse(0.0),
-                                max.orElse(0.0)
-                        }
-                ));
+                        Collectors.minBy(Double::compareTo), Collectors.maxBy(Double::compareTo), (min, max) ->
+                                new double[] {min.orElse(0.0), max.orElse(0.0)}));
     }
 
     /**
@@ -88,9 +81,6 @@ public class StreamAdvanced {
     public static double totalRevenue(List<Order> orders) {
         return orders.parallelStream()
                 .flatMap(order -> order.items().stream())
-                .reduce(0.0,
-                        (sum, item) -> sum + item.price() * item.quantity(),
-                        Double::sum
-                );
+                .reduce(0.0, (sum, item) -> sum + item.price() * item.quantity(), Double::sum);
     }
 }

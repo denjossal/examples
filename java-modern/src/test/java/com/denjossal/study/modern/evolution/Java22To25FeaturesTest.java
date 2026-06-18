@@ -1,11 +1,10 @@
 package com.denjossal.study.modern.evolution;
 
-import com.denjossal.study.modern.evolution.Java22To25Features.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.modern.evolution.Java22To25Features.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
 
 class Java22To25FeaturesTest {
 
@@ -66,7 +65,6 @@ class Java22To25FeaturesTest {
         var list = new ValidatedList<>(List.of(1, 2, 3));
         assertThat(list).containsExactly(1, 2, 3);
 
-        assertThatThrownBy(() -> new ValidatedList<>(null))
-                .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new ValidatedList<>(null)).isInstanceOf(NullPointerException.class);
     }
 }

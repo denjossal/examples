@@ -22,23 +22,14 @@ public class ImpactMeasurement {
         public String summary() {
             double pct = improvement();
             String direction = pct > 0 ? "improvement" : "regression";
-            return "%s: %.1f%s → %.1f%s (%.1f%% %s)".formatted(
-                    name, baseline, unit, withAI, unit, Math.abs(pct), direction
-            );
+            return "%s: %.1f%s → %.1f%s (%.1f%% %s)"
+                    .formatted(name, baseline, unit, withAI, unit, Math.abs(pct), direction);
         }
     }
 
-    public record ImpactReport(
-            String teamName,
-            String period,
-            List<Metric> metrics,
-            List<String> qualitativeFindings
-    ) {
+    public record ImpactReport(String teamName, String period, List<Metric> metrics, List<String> qualitativeFindings) {
         public double averageImprovement() {
-            return metrics.stream()
-                    .mapToDouble(Metric::improvement)
-                    .average()
-                    .orElse(0);
+            return metrics.stream().mapToDouble(Metric::improvement).average().orElse(0);
         }
     }
 
@@ -52,15 +43,13 @@ public class ImpactMeasurement {
                 new Metric("Test coverage", 62, 84, "%"),
                 new Metric("Code review turnaround", 24, 4, " hrs"),
                 new Metric("Boilerplate time", 6, 1.5, " hrs/week"),
-                new Metric("Documentation coverage", 40, 78, "%")
-        );
+                new Metric("Documentation coverage", 40, 78, "%"));
 
         var qualitative = List.of(
                 "Junior developers onboard 40% faster with AI-generated explanations",
                 "Consistent code style without manual enforcement — AI applies conventions",
                 "Architecture decisions documented in real-time via AI summaries",
-                "Reduced context-switching: AI handles repetitive tasks in-flow"
-        );
+                "Reduced context-switching: AI handles repetitive tasks in-flow");
 
         return new ImpactReport("Platform Team", "Q1 2026", metrics, qualitative);
     }

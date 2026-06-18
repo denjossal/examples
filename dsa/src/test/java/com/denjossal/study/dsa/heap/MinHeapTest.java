@@ -1,11 +1,10 @@
 package com.denjossal.study.dsa.heap;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Comparator;
 import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class MinHeapTest {
 
@@ -80,15 +79,13 @@ class MinHeapTest {
     @Test
     void shouldThrowOnPollEmpty() {
         var heap = new MinHeap<Integer>();
-        assertThatThrownBy(heap::poll)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(heap::poll).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
     void shouldThrowOnPeekEmpty() {
         var heap = new MinHeap<Integer>();
-        assertThatThrownBy(heap::peek)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(heap::peek).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test

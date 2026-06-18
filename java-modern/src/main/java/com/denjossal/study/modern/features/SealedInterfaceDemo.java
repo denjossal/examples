@@ -10,7 +10,9 @@ public class SealedInterfaceDemo {
     public sealed interface Shape permits Circle, Rectangle, Triangle {}
 
     public record Circle(double radius) implements Shape {}
+
     public record Rectangle(double width, double height) implements Shape {}
+
     public record Triangle(double base, double height) implements Shape {}
 
     /**

@@ -38,9 +38,7 @@ public class RetryWithBackoff {
                 }
             }
         }
-        throw new RetryExhaustedException(
-                "Failed after %d attempts".formatted(maxAttempts), lastException
-        );
+        throw new RetryExhaustedException("Failed after %d attempts".formatted(maxAttempts), lastException);
     }
 
     public int getMaxAttempts() {

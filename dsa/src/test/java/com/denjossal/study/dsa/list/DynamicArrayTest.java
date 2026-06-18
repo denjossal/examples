@@ -1,7 +1,8 @@
 package com.denjossal.study.dsa.list;
 
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class DynamicArrayTest {
 
@@ -66,16 +67,13 @@ class DynamicArrayTest {
         var arr = new DynamicArray<Integer>();
         arr.add(1);
 
-        assertThatThrownBy(() -> arr.get(5))
-                .isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> arr.get(5)).isInstanceOf(IndexOutOfBoundsException.class);
 
-        assertThatThrownBy(() -> arr.get(-1))
-                .isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> arr.get(-1)).isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
     void shouldThrowOnNegativeCapacity() {
-        assertThatThrownBy(() -> new DynamicArray<>(-1))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new DynamicArray<>(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -1,5 +1,12 @@
 package com.denjossal.study.integration.streaming;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.*;
@@ -9,14 +16,6 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.*;
 import software.amazon.awssdk.services.s3.model.*;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.*;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
 
 /**
  * Large File Streaming with S3 — process data without loading entirely into memory.
@@ -32,9 +31,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class S3StreamingTest {
 
     @Container
-    static final LocalStackContainer localstack = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:4.0"))
-            .withServices(S3);
+    static final LocalStackContainer localstack =
+            new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.0")).withServices(S3);
 
     private S3Client s3;
     private static final String BUCKET = "data-bucket";
@@ -55,9 +53,11 @@ class S3StreamingTest {
     @AfterEach
     void tearDown() {
         // Clean up bucket
-        var objects = s3.listObjectsV2(ListObjectsV2Request.builder().bucket(BUCKET).build());
+        var objects =
+                s3.listObjectsV2(ListObjectsV2Request.builder().bucket(BUCKET).build());
         for (var obj : objects.contents()) {
-            s3.deleteObject(DeleteObjectRequest.builder().bucket(BUCKET).key(obj.key()).build());
+            s3.deleteObject(
+                    DeleteObjectRequest.builder().bucket(BUCKET).key(obj.key()).build());
         }
         s3.deleteBucket(DeleteBucketRequest.builder().bucket(BUCKET).build());
         s3.close();
@@ -68,12 +68,10 @@ class S3StreamingTest {
         String key = "orders/2024/orders.csv";
         String content = generateCSV(100);
 
-        s3.putObject(
-                PutObjectRequest.builder().bucket(BUCKET).key(key).build(),
-                RequestBody.fromString(content)
-        );
+        s3.putObject(PutObjectRequest.builder().bucket(BUCKET).key(key).build(), RequestBody.fromString(content));
 
-        var response = s3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
+        var response =
+                s3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
         String downloaded = new String(response.readAllBytes(), StandardCharsets.UTF_8);
 
         assertThat(downloaded).isEqualTo(content);
@@ -84,13 +82,11 @@ class S3StreamingTest {
         String key = "large/transactions.csv";
         String csv = generateCSV(10_000);
 
-        s3.putObject(
-                PutObjectRequest.builder().bucket(BUCKET).key(key).build(),
-                RequestBody.fromString(csv)
-        );
+        s3.putObject(PutObjectRequest.builder().bucket(BUCKET).key(key).build(), RequestBody.fromString(csv));
 
         // Stream process: read line-by-line, never load full file
-        var response = s3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
+        var response =
+                s3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
         long totalAmount = 0;
         int lineCount = 0;
 
@@ -115,8 +111,7 @@ class S3StreamingTest {
             String key = "partitioned/day=%d/data.csv".formatted(day);
             s3.putObject(
                     PutObjectRequest.builder().bucket(BUCKET).key(key).build(),
-                    RequestBody.fromString(generateCSV(100))
-            );
+                    RequestBody.fromString(generateCSV(100)));
         }
 
         // List and process each partition independently (parallel-ready)
@@ -147,21 +142,32 @@ class S3StreamingTest {
         var completedParts = new ArrayList<CompletedPart>();
         for (int part = 1; part <= 3; part++) {
             String partData = "x".repeat(5 * 1024 * 1024); // 5MB per part (S3 minimum)
-            var uploadResponse = s3.uploadPart(UploadPartRequest.builder()
-                    .bucket(BUCKET).key(key).uploadId(uploadId).partNumber(part)
-                    .build(), RequestBody.fromString(partData));
+            var uploadResponse = s3.uploadPart(
+                    UploadPartRequest.builder()
+                            .bucket(BUCKET)
+                            .key(key)
+                            .uploadId(uploadId)
+                            .partNumber(part)
+                            .build(),
+                    RequestBody.fromString(partData));
 
             completedParts.add(CompletedPart.builder()
-                    .partNumber(part).eTag(uploadResponse.eTag()).build());
+                    .partNumber(part)
+                    .eTag(uploadResponse.eTag())
+                    .build());
         }
 
         s3.completeMultipartUpload(CompleteMultipartUploadRequest.builder()
-                .bucket(BUCKET).key(key).uploadId(uploadId)
-                .multipartUpload(CompletedMultipartUpload.builder().parts(completedParts).build())
+                .bucket(BUCKET)
+                .key(key)
+                .uploadId(uploadId)
+                .multipartUpload(
+                        CompletedMultipartUpload.builder().parts(completedParts).build())
                 .build());
 
         // Verify the object exists and has correct size
-        var head = s3.headObject(HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
+        var head = s3.headObject(
+                HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
         assertThat(head.contentLength()).isEqualTo(3L * 5 * 1024 * 1024);
     }
 
@@ -171,14 +177,15 @@ class S3StreamingTest {
         var sb = new StringBuilder("id,customer,amount,date\n");
         var random = new Random(42);
         for (int i = 0; i < rows; i++) {
-            sb.append("%d,CUST-%d,%d,2024-01-%02d\n".formatted(
-                    i, random.nextInt(100), random.nextInt(1000) + 1, (i % 28) + 1));
+            sb.append("%d,CUST-%d,%d,2024-01-%02d\n"
+                    .formatted(i, random.nextInt(100), random.nextInt(1000) + 1, (i % 28) + 1));
         }
         return sb.toString();
     }
 
     private long countLines(String key) {
-        var response = s3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
+        var response =
+                s3.getObject(GetObjectRequest.builder().bucket(BUCKET).key(key).build());
         try (var reader = new BufferedReader(new InputStreamReader(response, StandardCharsets.UTF_8))) {
             return reader.lines().count() - 1; // subtract header
         } catch (IOException e) {

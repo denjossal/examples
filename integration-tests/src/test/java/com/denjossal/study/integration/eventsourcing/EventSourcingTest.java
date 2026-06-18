@@ -1,5 +1,9 @@
 package com.denjossal.study.integration.eventsourcing;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.time.Duration;
+import java.util.*;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
@@ -7,11 +11,6 @@ import org.apache.kafka.common.serialization.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.kafka.KafkaContainer;
-
-import java.time.Duration;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Event Sourcing — store state as a sequence of events, rebuild by replaying.
@@ -38,17 +37,22 @@ class EventSourcingTest {
 
     @BeforeAll
     static void createTopic() throws Exception {
-        try (var admin = AdminClient.create(Map.of(
-                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
-            admin.createTopics(List.of(new NewTopic(EVENT_STORE_TOPIC, 1, (short) 1))).all().get();
+        try (var admin =
+                AdminClient.create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
+            admin.createTopics(List.of(new NewTopic(EVENT_STORE_TOPIC, 1, (short) 1)))
+                    .all()
+                    .get();
         }
     }
 
     // ─── Domain: Bank Account ───────────────────────────────────────────────
 
     sealed interface AccountEvent permits AccountCreated, MoneyDeposited, MoneyWithdrawn {}
+
     record AccountCreated(String accountId, String owner) implements AccountEvent {}
+
     record MoneyDeposited(String accountId, double amount) implements AccountEvent {}
+
     record MoneyWithdrawn(String accountId, double amount) implements AccountEvent {}
 
     record AccountState(String accountId, String owner, double balance, int version) {}
@@ -108,7 +112,10 @@ class EventSourcingTest {
         String accountId = "ACC-003";
 
         for (int i = 1; i <= 10; i++) {
-            appendEvent(accountId, "MoneyDeposited", """
+            appendEvent(
+                    accountId,
+                    "MoneyDeposited",
+                    """
                     {"accountId":"ACC-003","amount":%d.0}""".formatted(i * 100));
         }
 
@@ -126,10 +133,9 @@ class EventSourcingTest {
         try (var producer = new KafkaProducer<String, String>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName(),
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()
-        ))) {
-            var record = new ProducerRecord<>(EVENT_STORE_TOPIC, aggregateId,
-                    "{\"type\":\"%s\",\"data\":%s}".formatted(eventType, payload));
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()))) {
+            var record = new ProducerRecord<>(
+                    EVENT_STORE_TOPIC, aggregateId, "{\"type\":\"%s\",\"data\":%s}".formatted(eventType, payload));
             producer.send(record).get();
         }
     }
@@ -140,8 +146,7 @@ class EventSourcingTest {
                 ConsumerConfig.GROUP_ID_CONFIG, "replay-" + UUID.randomUUID(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()
-        ))) {
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()))) {
             consumer.subscribe(List.of(EVENT_STORE_TOPIC));
             var events = new ArrayList<String>();
             long deadline = System.currentTimeMillis() + 10_000;

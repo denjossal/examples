@@ -1,12 +1,11 @@
 package com.denjossal.study.algorithms.linkedlist;
 
-import com.denjossal.study.algorithms.linkedlist.ReorderList.ListNode;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
+import com.denjossal.study.algorithms.linkedlist.ReorderList.ListNode;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ReorderListTest {
 

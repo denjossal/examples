@@ -1,15 +1,14 @@
 package com.denjossal.study.integration.cqrs;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.sql.*;
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.*;
 import redis.clients.jedis.Jedis;
-
-import java.sql.*;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * CQRS (Command Query Responsibility Segregation) with PostgreSQL + Redis.
@@ -29,24 +28,23 @@ import static org.assertj.core.api.Assertions.*;
 class CQRSPatternTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("cqrs_db");
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName("cqrs_db");
 
     @Container
     @SuppressWarnings("resource")
-    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
-            .withExposedPorts(6379);
+    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
 
     private Connection writeDb;
     private Jedis readStore;
 
     @BeforeEach
     void setUp() throws SQLException {
-        writeDb = DriverManager.getConnection(
-                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+        writeDb = DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
 
         try (var stmt = writeDb.createStatement()) {
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS products (
                         id VARCHAR(50) PRIMARY KEY,
                         name VARCHAR(200) NOT NULL,
@@ -54,7 +52,8 @@ class CQRSPatternTest {
                         stock INTEGER NOT NULL DEFAULT 0
                     )
                     """);
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS order_items (
                         id SERIAL PRIMARY KEY,
                         order_id VARCHAR(50) NOT NULL,
@@ -143,8 +142,7 @@ class CQRSPatternTest {
     // ─── Write side (Commands) ──────────────────────────────────────────────
 
     private void createProduct(String id, String name, double price, int stock) throws SQLException {
-        try (var ps = writeDb.prepareStatement(
-                "INSERT INTO products (id, name, price, stock) VALUES (?, ?, ?, ?)")) {
+        try (var ps = writeDb.prepareStatement("INSERT INTO products (id, name, price, stock) VALUES (?, ?, ?, ?)")) {
             ps.setString(1, id);
             ps.setString(2, name);
             ps.setDouble(3, price);
@@ -171,26 +169,26 @@ class CQRSPatternTest {
             ps.setString(1, productId);
             var rs = ps.executeQuery();
             if (rs.next()) {
-                readStore.hset("product:" + productId, Map.of(
-                        "name", rs.getString("name"),
-                        "price", String.valueOf(rs.getDouble("price")),
-                        "stock", String.valueOf(rs.getInt("stock"))
-                ));
+                readStore.hset(
+                        "product:" + productId,
+                        Map.of(
+                                "name", rs.getString("name"),
+                                "price", String.valueOf(rs.getDouble("price")),
+                                "stock", String.valueOf(rs.getInt("stock"))));
             }
         }
     }
 
     private void projectRevenueLeaderboard() throws SQLException {
         try (var stmt = writeDb.createStatement()) {
-            var rs = stmt.executeQuery("""
+            var rs = stmt.executeQuery(
+                    """
                     SELECT product_id, SUM(quantity * unit_price) as revenue
                     FROM order_items
                     GROUP BY product_id
                     """);
             while (rs.next()) {
-                readStore.zadd("leaderboard:revenue",
-                        rs.getDouble("revenue"),
-                        rs.getString("product_id"));
+                readStore.zadd("leaderboard:revenue", rs.getDouble("revenue"), rs.getString("product_id"));
             }
         }
     }

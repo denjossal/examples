@@ -1,22 +1,19 @@
 package com.denjossal.study.modern.evolution;
 
-import com.denjossal.study.modern.evolution.Java17To21Features.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.modern.evolution.Java17To21Features.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
 
 class Java17To21FeaturesTest {
 
     @Test
     void shouldDescribeSealedResult() {
-        assertThat(Java17To21Features.describeResult(new Success<>("data")))
-                .isEqualTo("Success: data");
+        assertThat(Java17To21Features.describeResult(new Success<>("data"))).isEqualTo("Success: data");
         assertThat(Java17To21Features.describeResult(new Failure<>("timeout", null)))
                 .isEqualTo("Failed: timeout");
-        assertThat(Java17To21Features.describeResult(new Pending<>("task-123")))
-                .isEqualTo("Pending: task-123");
+        assertThat(Java17To21Features.describeResult(new Pending<>("task-123"))).isEqualTo("Pending: task-123");
     }
 
     @Test
@@ -32,12 +29,9 @@ class Java17To21FeaturesTest {
 
     @Test
     void shouldComputeAreaWithRecordPatterns() {
-        assertThat(Java17To21Features.area(new Circle(5.0)))
-                .isCloseTo(78.539, within(0.01));
-        assertThat(Java17To21Features.area(new Rect(3.0, 4.0)))
-                .isEqualTo(12.0);
-        assertThat(Java17To21Features.area(new Triangle(6.0, 3.0)))
-                .isEqualTo(9.0);
+        assertThat(Java17To21Features.area(new Circle(5.0))).isCloseTo(78.539, within(0.01));
+        assertThat(Java17To21Features.area(new Rect(3.0, 4.0))).isEqualTo(12.0);
+        assertThat(Java17To21Features.area(new Triangle(6.0, 3.0))).isEqualTo(9.0);
     }
 
     @Test

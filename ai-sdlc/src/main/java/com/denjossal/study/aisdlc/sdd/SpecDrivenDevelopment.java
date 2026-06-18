@@ -17,8 +17,20 @@ import java.util.*;
  */
 public class SpecDrivenDevelopment {
 
-    public enum Phase { SPEC, PLAN, TASKS, IMPLEMENTATION, REVIEW }
-    public enum TaskStatus { PENDING, IN_PROGRESS, COMPLETED, BLOCKED }
+    public enum Phase {
+        SPEC,
+        PLAN,
+        TASKS,
+        IMPLEMENTATION,
+        REVIEW
+    }
+
+    public enum TaskStatus {
+        PENDING,
+        IN_PROGRESS,
+        COMPLETED,
+        BLOCKED
+    }
 
     public record Spec(
             String id,
@@ -26,47 +38,27 @@ public class SpecDrivenDevelopment {
             String description,
             List<String> acceptanceCriteria,
             List<String> outOfScope,
-            Instant createdAt
-    ) {}
+            Instant createdAt) {}
 
-    public record Plan(
-            String specId,
-            List<PlanStep> steps,
-            List<String> risks,
-            String estimatedEffort
-    ) {}
+    public record Plan(String specId, List<PlanStep> steps, List<String> risks, String estimatedEffort) {}
 
-    public record PlanStep(
-            int order,
-            String description,
-            List<String> files,
-            List<Integer> dependsOn
-    ) {}
+    public record PlanStep(int order, String description, List<String> files, List<Integer> dependsOn) {}
 
     public record Task(
-            String id,
-            String planStepDescription,
-            TaskStatus status,
-            String assignee,
-            List<String> subtasks
-    ) {}
+            String id, String planStepDescription, TaskStatus status, String assignee, List<String> subtasks) {}
 
     private final Map<String, Spec> specs = new LinkedHashMap<>();
     private final Map<String, Plan> plans = new LinkedHashMap<>();
     private final Map<String, List<Task>> tasks = new LinkedHashMap<>();
 
-    public Spec createSpec(String title, String description,
-                           List<String> acceptanceCriteria, List<String> outOfScope) {
+    public Spec createSpec(String title, String description, List<String> acceptanceCriteria, List<String> outOfScope) {
         var spec = new Spec(
-                UUID.randomUUID().toString(),
-                title, description, acceptanceCriteria, outOfScope, Instant.now()
-        );
+                UUID.randomUUID().toString(), title, description, acceptanceCriteria, outOfScope, Instant.now());
         specs.put(spec.id(), spec);
         return spec;
     }
 
-    public Plan createPlan(String specId, List<PlanStep> steps,
-                           List<String> risks, String estimatedEffort) {
+    public Plan createPlan(String specId, List<PlanStep> steps, List<String> risks, String estimatedEffort) {
         if (!specs.containsKey(specId)) {
             throw new IllegalArgumentException("Spec not found: " + specId);
         }
@@ -82,12 +74,7 @@ public class SpecDrivenDevelopment {
         var taskList = new ArrayList<Task>();
         for (var step : plan.steps()) {
             taskList.add(new Task(
-                    UUID.randomUUID().toString(),
-                    step.description(),
-                    TaskStatus.PENDING,
-                    assignee,
-                    List.of()
-            ));
+                    UUID.randomUUID().toString(), step.description(), TaskStatus.PENDING, assignee, List.of()));
         }
         tasks.put(specId, taskList);
         return taskList;

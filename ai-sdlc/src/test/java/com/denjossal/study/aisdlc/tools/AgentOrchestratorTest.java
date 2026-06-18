@@ -1,11 +1,10 @@
 package com.denjossal.study.aisdlc.tools;
 
-import com.denjossal.study.aisdlc.tools.AgentOrchestrator.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.aisdlc.tools.AgentOrchestrator.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
 
 class AgentOrchestratorTest {
 
@@ -19,9 +18,8 @@ class AgentOrchestratorTest {
 
     @Test
     void shouldRunSequentialPipeline() {
-        var results = AgentOrchestrator.sequential("start",
-                List.of(echoAgent("planner"), echoAgent("coder"), echoAgent("reviewer"))
-        );
+        var results = AgentOrchestrator.sequential(
+                "start", List.of(echoAgent("planner"), echoAgent("coder"), echoAgent("reviewer")));
 
         assertThat(results).hasSize(3);
         assertThat(results.get(0).output()).isEqualTo("planner: start");
@@ -31,9 +29,8 @@ class AgentOrchestratorTest {
 
     @Test
     void shouldStopSequentialOnFailure() {
-        var results = AgentOrchestrator.sequential("input",
-                List.of(echoAgent("first"), failAgent("broken"), echoAgent("unreached"))
-        );
+        var results = AgentOrchestrator.sequential(
+                "input", List.of(echoAgent("first"), failAgent("broken"), echoAgent("unreached")));
 
         assertThat(results).hasSize(2);
         assertThat(results.get(1).success()).isFalse();
@@ -41,9 +38,8 @@ class AgentOrchestratorTest {
 
     @Test
     void shouldRunParallel() throws Exception {
-        var results = AgentOrchestrator.parallel("query",
-                List.of(echoAgent("search1"), echoAgent("search2"), echoAgent("search3"))
-        );
+        var results = AgentOrchestrator.parallel(
+                "query", List.of(echoAgent("search1"), echoAgent("search2"), echoAgent("search3")));
 
         assertThat(results).hasSize(3);
         assertThat(results).allMatch(AgentResult::success);
@@ -53,31 +49,23 @@ class AgentOrchestratorTest {
     void shouldRouteToCorrectAgent() {
         var routes = Map.<String, Agent>of(
                 "bug", echoAgent("debugger"),
-                "feature", echoAgent("builder")
-        );
+                "feature", echoAgent("builder"));
 
-        var result = AgentOrchestrator.route("fix the crash",
-                input -> input.contains("fix") ? "bug" : "feature",
-                routes,
-                echoAgent("default")
-        );
+        var result = AgentOrchestrator.route(
+                "fix the crash", input -> input.contains("fix") ? "bug" : "feature", routes, echoAgent("default"));
 
         assertThat(result.agentName()).isEqualTo("debugger");
     }
 
     @Test
     void shouldLoopUntilQualityMet() {
-        var counter = new int[]{0};
+        var counter = new int[] {0};
         Agent refiner = input -> {
             counter[0]++;
             return new AgentResult("refiner", "v" + counter[0], counter[0] >= 3);
         };
 
-        var results = AgentOrchestrator.loopUntil("draft",
-                refiner,
-                AgentResult::success,
-                5
-        );
+        var results = AgentOrchestrator.loopUntil("draft", refiner, AgentResult::success, 5);
 
         assertThat(results).hasSize(3);
         assertThat(results.getLast().output()).isEqualTo("v3");

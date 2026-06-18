@@ -1,10 +1,9 @@
 package com.denjossal.study.dsa.list;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class SinglyLinkedListTest {
 
@@ -77,11 +76,9 @@ class SinglyLinkedListTest {
     void shouldThrowOnRemoveFromEmpty() {
         var list = new SinglyLinkedList<Integer>();
 
-        assertThatThrownBy(list::removeFirst)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(list::removeFirst).isInstanceOf(NoSuchElementException.class);
 
-        assertThatThrownBy(list::removeLast)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(list::removeLast).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -161,8 +158,7 @@ class SinglyLinkedListTest {
     @Test
     void shouldThrowFindMiddleOnEmpty() {
         var list = new SinglyLinkedList<Integer>();
-        assertThatThrownBy(list::findMiddle)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(list::findMiddle).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -197,9 +193,7 @@ class SinglyLinkedListTest {
         var list = new SinglyLinkedList<Integer>();
         list.addFirst(1);
 
-        assertThatThrownBy(() -> list.get(5))
-                .isInstanceOf(IndexOutOfBoundsException.class);
-        assertThatThrownBy(() -> list.get(-1))
-                .isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> list.get(5)).isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> list.get(-1)).isInstanceOf(IndexOutOfBoundsException.class);
     }
 }

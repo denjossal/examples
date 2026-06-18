@@ -1,9 +1,9 @@
 package com.denjossal.study.modern.features;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.denjossal.study.modern.features.RecordPatternDemo.*;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.*;
 
 class RecordPatternDemoTest {
 

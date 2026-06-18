@@ -1,5 +1,10 @@
 package com.denjossal.study.integration.kafka;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.*;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
@@ -7,12 +12,6 @@ import org.apache.kafka.common.serialization.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.kafka.KafkaContainer;
-
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Real Kafka integration test using Testcontainers.
@@ -28,8 +27,8 @@ class KafkaIntegrationTest {
 
     @BeforeAll
     static void createTopic() throws Exception {
-        try (var admin = AdminClient.create(Map.of(
-                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
+        try (var admin =
+                AdminClient.create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
             admin.createTopics(List.of(new NewTopic(TOPIC, 3, (short) 1))).all().get();
         }
     }
@@ -42,21 +41,25 @@ class KafkaIntegrationTest {
         try (var producer = new KafkaProducer<String, String>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName(),
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()
-        ))) {
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()))) {
             for (int i = 0; i < 5; i++) {
-                producer.send(new ProducerRecord<>(TOPIC, "key-" + i, "order-" + i)).get();
+                producer.send(new ProducerRecord<>(TOPIC, "key-" + i, "order-" + i))
+                        .get();
             }
         }
 
         // Consume
         try (var consumer = new KafkaConsumer<String, String>(Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-                ConsumerConfig.GROUP_ID_CONFIG, "test-group",
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()
-        ))) {
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                bootstrapServers,
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "test-group",
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest",
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName(),
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName()))) {
             consumer.subscribe(List.of(TOPIC));
 
             var records = new ArrayList<String>();
@@ -67,8 +70,7 @@ class KafkaIntegrationTest {
             }
 
             assertThat(records).hasSize(5);
-            assertThat(records).containsExactlyInAnyOrder(
-                    "order-0", "order-1", "order-2", "order-3", "order-4");
+            assertThat(records).containsExactlyInAnyOrder("order-0", "order-1", "order-2", "order-3", "order-4");
         }
     }
 
@@ -79,12 +81,11 @@ class KafkaIntegrationTest {
         try (var producer = new KafkaProducer<String, String>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName(),
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()
-        ))) {
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()))) {
             var partitions = new HashSet<Integer>();
             for (int i = 0; i < 20; i++) {
-                var metadata = producer.send(
-                        new ProducerRecord<>(TOPIC, "key-" + i, "val-" + i)).get();
+                var metadata = producer.send(new ProducerRecord<>(TOPIC, "key-" + i, "val-" + i))
+                        .get();
                 partitions.add(metadata.partition());
             }
             // With 3 partitions and 20 keys, should hit multiple partitions
@@ -97,8 +98,7 @@ class KafkaIntegrationTest {
         String bootstrapServers = kafka.getBootstrapServers();
         String topic = "offset-test";
 
-        try (var admin = AdminClient.create(Map.of(
-                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers))) {
+        try (var admin = AdminClient.create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers))) {
             admin.createTopics(List.of(new NewTopic(topic, 1, (short) 1))).all().get();
         }
 
@@ -106,8 +106,7 @@ class KafkaIntegrationTest {
         try (var producer = new KafkaProducer<String, String>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName(),
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()
-        ))) {
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()))) {
             for (int i = 0; i < 3; i++) {
                 producer.send(new ProducerRecord<>(topic, "k", "msg-" + i)).get();
             }
@@ -124,13 +123,18 @@ class KafkaIntegrationTest {
 
     private List<String> consumeAll(String servers, String topic, String group, int expected) {
         try (var consumer = new KafkaConsumer<String, String>(Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers,
-                ConsumerConfig.GROUP_ID_CONFIG, group,
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true",
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()
-        ))) {
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                servers,
+                ConsumerConfig.GROUP_ID_CONFIG,
+                group,
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest",
+                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
+                "true",
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName(),
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName()))) {
             consumer.subscribe(List.of(topic));
             var records = new ArrayList<String>();
             long deadline = System.currentTimeMillis() + 5_000;

@@ -1,11 +1,10 @@
 package com.denjossal.study.modern.evolution;
 
-import com.denjossal.study.modern.evolution.Java12To16Features.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.modern.evolution.Java12To16Features.*;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class Java12To16FeaturesTest {
 
@@ -48,11 +47,9 @@ class Java12To16FeaturesTest {
 
     @Test
     void shouldValidateRecordConstruction() {
-        assertThatThrownBy(() -> new Money(-1, "USD"))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Money(-1, "USD")).isInstanceOf(IllegalArgumentException.class);
 
-        assertThatThrownBy(() -> new Range(10, 5))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Range(10, 5)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -65,19 +62,14 @@ class Java12To16FeaturesTest {
 
     @Test
     void shouldPatternMatchInstanceof() {
-        assertThat(Java12To16Features.describeNewWay("hello"))
-                .isEqualTo("String of length 5");
-        assertThat(Java12To16Features.describeNewWay(42))
-                .isEqualTo("Positive integer: 42");
-        assertThat(Java12To16Features.describeNewWay(List.of(1, 2)))
-                .isEqualTo("Non-empty list of size 2");
+        assertThat(Java12To16Features.describeNewWay("hello")).isEqualTo("String of length 5");
+        assertThat(Java12To16Features.describeNewWay(42)).isEqualTo("Positive integer: 42");
+        assertThat(Java12To16Features.describeNewWay(List.of(1, 2))).isEqualTo("Non-empty list of size 2");
     }
 
     @Test
     void shouldFilterAndCollect() {
-        var result = Java12To16Features.filterAndCollect(
-                List.of("apple", "avocado", "banana", "apricot"), "a"
-        );
+        var result = Java12To16Features.filterAndCollect(List.of("apple", "avocado", "banana", "apricot"), "a");
         assertThat(result).containsExactly("apple", "avocado", "apricot");
     }
 

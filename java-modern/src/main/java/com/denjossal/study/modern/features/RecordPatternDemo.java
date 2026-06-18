@@ -8,8 +8,11 @@ package com.denjossal.study.modern.features;
 public class RecordPatternDemo {
 
     public sealed interface Expr permits Num, Add, Mul {}
+
     public record Num(int value) implements Expr {}
+
     public record Add(Expr left, Expr right) implements Expr {}
+
     public record Mul(Expr left, Expr right) implements Expr {}
 
     /**
@@ -33,6 +36,7 @@ public class RecordPatternDemo {
     }
 
     public record Point(int x, int y) {}
+
     public record Line(Point start, Point end) {}
 
     /**

@@ -1,10 +1,9 @@
 package com.denjossal.study.dsa.list;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class DoublyLinkedListTest {
 
@@ -101,10 +100,8 @@ class DoublyLinkedListTest {
     void shouldThrowOnEmptyRemove() {
         var list = new DoublyLinkedList<Integer>();
 
-        assertThatThrownBy(list::removeFirst)
-                .isInstanceOf(NoSuchElementException.class);
-        assertThatThrownBy(list::removeLast)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(list::removeFirst).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(list::removeLast).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -112,10 +109,8 @@ class DoublyLinkedListTest {
         var list = new DoublyLinkedList<Integer>();
         list.addFirst(1);
 
-        assertThatThrownBy(() -> list.get(5))
-                .isInstanceOf(IndexOutOfBoundsException.class);
-        assertThatThrownBy(() -> list.get(-1))
-                .isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> list.get(5)).isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> list.get(-1)).isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test

@@ -1,10 +1,9 @@
 package com.denjossal.study.springboot.resilience;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class RetryWithBackoffTest {
 
@@ -36,8 +35,9 @@ class RetryWithBackoffTest {
         var retry = new RetryWithBackoff(3, 10, 2.0);
 
         assertThatThrownBy(() -> retry.execute(() -> {
-            throw new RuntimeException("always fails");
-        })).isInstanceOf(RetryWithBackoff.RetryExhaustedException.class)
+                    throw new RuntimeException("always fails");
+                }))
+                .isInstanceOf(RetryWithBackoff.RetryExhaustedException.class)
                 .hasMessageContaining("3 attempts");
     }
 }

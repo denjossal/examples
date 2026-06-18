@@ -1,8 +1,8 @@
 package com.denjossal.study.aisdlc.tools;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class PromptTemplateTest {
 
@@ -39,9 +39,7 @@ class PromptTemplateTest {
 
     @Test
     void shouldBuildCodeReviewPrompt() {
-        var messages = PromptTemplate.buildCodeReviewPrompt(
-                "public void foo() {}", "java", "production service"
-        );
+        var messages = PromptTemplate.buildCodeReviewPrompt("public void foo() {}", "java", "production service");
 
         assertThat(messages).hasSize(2);
         assertThat(messages.get(0).role()).isEqualTo(PromptTemplate.Role.SYSTEM);

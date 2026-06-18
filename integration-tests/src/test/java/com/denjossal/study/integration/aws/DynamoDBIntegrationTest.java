@@ -1,5 +1,9 @@
 package com.denjossal.study.integration.aws;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
+
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.*;
@@ -9,11 +13,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.*;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
-
 /**
  * Real DynamoDB integration test using LocalStack.
  * Demonstrates single-table design with actual AWS SDK v2 calls.
@@ -22,9 +21,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class DynamoDBIntegrationTest {
 
     @Container
-    static final LocalStackContainer localstack = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:4.0"))
-            .withServices(DYNAMODB);
+    static final LocalStackContainer localstack =
+            new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.0")).withServices(DYNAMODB);
 
     private DynamoDbClient dynamoDb;
 
@@ -40,13 +38,23 @@ class DynamoDBIntegrationTest {
         dynamoDb.createTable(CreateTableRequest.builder()
                 .tableName("app-table")
                 .keySchema(
-                        KeySchemaElement.builder().attributeName("PK").keyType(KeyType.HASH).build(),
-                        KeySchemaElement.builder().attributeName("SK").keyType(KeyType.RANGE).build()
-                )
+                        KeySchemaElement.builder()
+                                .attributeName("PK")
+                                .keyType(KeyType.HASH)
+                                .build(),
+                        KeySchemaElement.builder()
+                                .attributeName("SK")
+                                .keyType(KeyType.RANGE)
+                                .build())
                 .attributeDefinitions(
-                        AttributeDefinition.builder().attributeName("PK").attributeType(ScalarAttributeType.S).build(),
-                        AttributeDefinition.builder().attributeName("SK").attributeType(ScalarAttributeType.S).build()
-                )
+                        AttributeDefinition.builder()
+                                .attributeName("PK")
+                                .attributeType(ScalarAttributeType.S)
+                                .build(),
+                        AttributeDefinition.builder()
+                                .attributeName("SK")
+                                .attributeType(ScalarAttributeType.S)
+                                .build())
                 .billingMode(BillingMode.PAY_PER_REQUEST)
                 .build());
     }
@@ -65,16 +73,14 @@ class DynamoDBIntegrationTest {
                         "PK", AttributeValue.fromS("USER#user-1"),
                         "SK", AttributeValue.fromS("PROFILE"),
                         "name", AttributeValue.fromS("Alice"),
-                        "email", AttributeValue.fromS("alice@test.com")
-                ))
+                        "email", AttributeValue.fromS("alice@test.com")))
                 .build());
 
         var response = dynamoDb.getItem(GetItemRequest.builder()
                 .tableName("app-table")
                 .key(Map.of(
                         "PK", AttributeValue.fromS("USER#user-1"),
-                        "SK", AttributeValue.fromS("PROFILE")
-                ))
+                        "SK", AttributeValue.fromS("PROFILE")))
                 .build());
 
         assertThat(response.item().get("name").s()).isEqualTo("Alice");
@@ -110,8 +116,7 @@ class DynamoDBIntegrationTest {
                 .keyConditionExpression("PK = :pk AND begins_with(SK, :sk)")
                 .expressionAttributeValues(Map.of(
                         ":pk", AttributeValue.fromS("USER#u2"),
-                        ":sk", AttributeValue.fromS("ORDER#")
-                ))
+                        ":sk", AttributeValue.fromS("ORDER#")))
                 .build());
 
         assertThat(response.items()).hasSize(2);
@@ -120,32 +125,29 @@ class DynamoDBIntegrationTest {
 
     @Test
     void shouldUpdateItemConditionally() {
-        dynamoDb.putItem(putRequest("USER#u3", "ORDER#001",
-                Map.of("status", "PLACED", "total", "100")));
+        dynamoDb.putItem(putRequest("USER#u3", "ORDER#001", Map.of("status", "PLACED", "total", "100")));
 
         // Update only if status is PLACED (optimistic concurrency)
         dynamoDb.updateItem(UpdateItemRequest.builder()
                 .tableName("app-table")
                 .key(Map.of(
                         "PK", AttributeValue.fromS("USER#u3"),
-                        "SK", AttributeValue.fromS("ORDER#001")
-                ))
+                        "SK", AttributeValue.fromS("ORDER#001")))
                 .updateExpression("SET #s = :new_status")
                 .conditionExpression("#s = :old_status")
                 .expressionAttributeNames(Map.of("#s", "status"))
                 .expressionAttributeValues(Map.of(
                         ":new_status", AttributeValue.fromS("SHIPPED"),
-                        ":old_status", AttributeValue.fromS("PLACED")
-                ))
+                        ":old_status", AttributeValue.fromS("PLACED")))
                 .build());
 
         var item = dynamoDb.getItem(GetItemRequest.builder()
-                .tableName("app-table")
-                .key(Map.of(
-                        "PK", AttributeValue.fromS("USER#u3"),
-                        "SK", AttributeValue.fromS("ORDER#001")
-                ))
-                .build()).item();
+                        .tableName("app-table")
+                        .key(Map.of(
+                                "PK", AttributeValue.fromS("USER#u3"),
+                                "SK", AttributeValue.fromS("ORDER#001")))
+                        .build())
+                .item();
 
         assertThat(item.get("status").s()).isEqualTo("SHIPPED");
     }

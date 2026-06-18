@@ -14,7 +14,11 @@ import java.util.regex.*;
  */
 public class PromptTemplate {
 
-    public enum Role { SYSTEM, USER, ASSISTANT }
+    public enum Role {
+        SYSTEM,
+        USER,
+        ASSISTANT
+    }
 
     public record Message(Role role, String content) {}
 
@@ -38,7 +42,8 @@ public class PromptTemplate {
         if (!missing.isEmpty()) {
             throw new IllegalStateException("Missing variables: " + missing);
         }
-        return VARIABLE_PATTERN.matcher(template)
+        return VARIABLE_PATTERN
+                .matcher(template)
                 .replaceAll(match -> Matcher.quoteReplacement(variables.get(match.group(1))));
     }
 
@@ -62,7 +67,9 @@ public class PromptTemplate {
      */
     public static List<Message> buildCodeReviewPrompt(String code, String language, String context) {
         return List.of(
-                new Message(Role.SYSTEM, """
+                new Message(
+                        Role.SYSTEM,
+                        """
                         You are a senior code reviewer. Review the code for:
                         1. Correctness bugs
                         2. Security vulnerabilities (OWASP Top 10)
@@ -72,15 +79,17 @@ public class PromptTemplate {
                         Output format: JSON array of findings with severity (critical/high/medium/low),
                         line number, description, and suggested fix.
                         """),
-                new Message(Role.USER, """
+                new Message(
+                        Role.USER,
+                        """
                         Language: %s
                         Context: %s
 
                         ```%s
                         %s
                         ```
-                        """.formatted(language, context, language, code))
-        );
+                        """
+                                .formatted(language, context, language, code)));
     }
 
     /**
@@ -88,7 +97,9 @@ public class PromptTemplate {
      */
     public static List<Message> buildTestGenerationPrompt(String code, String testFramework) {
         return List.of(
-                new Message(Role.SYSTEM, """
+                new Message(
+                        Role.SYSTEM,
+                        """
                         Generate comprehensive unit tests for the provided code.
                         Use %s. Cover:
                         - Happy path
@@ -97,8 +108,8 @@ public class PromptTemplate {
 
                         Follow the AAA pattern (Arrange, Act, Assert).
                         Use descriptive test method names: should[Expected]When[Condition].
-                        """.formatted(testFramework)),
-                new Message(Role.USER, code)
-        );
+                        """
+                                .formatted(testFramework)),
+                new Message(Role.USER, code));
     }
 }

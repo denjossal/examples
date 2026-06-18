@@ -1,8 +1,8 @@
 package com.denjossal.study.springboot.resilience;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class CircuitBreakerTest {
 
@@ -24,7 +24,9 @@ class CircuitBreakerTest {
         var cb = new CircuitBreaker<String>(3, 1000, () -> "fallback");
 
         for (int i = 0; i < 3; i++) {
-            cb.execute(() -> { throw new RuntimeException("fail"); });
+            cb.execute(() -> {
+                throw new RuntimeException("fail");
+            });
         }
 
         assertThat(cb.getState()).isEqualTo(CircuitBreaker.State.OPEN);
@@ -33,7 +35,9 @@ class CircuitBreakerTest {
     @Test
     void shouldReturnFallbackWhenOpen() {
         var cb = new CircuitBreaker<String>(1, 5000, () -> "fallback");
-        cb.execute(() -> { throw new RuntimeException(); });
+        cb.execute(() -> {
+            throw new RuntimeException();
+        });
 
         var result = cb.execute(() -> "should not reach");
         assertThat(result).isEqualTo("fallback");
@@ -42,8 +46,12 @@ class CircuitBreakerTest {
     @Test
     void shouldResetOnSuccess() {
         var cb = new CircuitBreaker<String>(3, 1000, () -> "fallback");
-        cb.execute(() -> { throw new RuntimeException(); });
-        cb.execute(() -> { throw new RuntimeException(); });
+        cb.execute(() -> {
+            throw new RuntimeException();
+        });
+        cb.execute(() -> {
+            throw new RuntimeException();
+        });
 
         cb.execute(() -> "success");
 
@@ -54,7 +62,9 @@ class CircuitBreakerTest {
     @Test
     void shouldTransitionToHalfOpenAfterTimeout() throws InterruptedException {
         var cb = new CircuitBreaker<String>(1, 50, () -> "fallback");
-        cb.execute(() -> { throw new RuntimeException(); });
+        cb.execute(() -> {
+            throw new RuntimeException();
+        });
         assertThat(cb.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
         Thread.sleep(60);

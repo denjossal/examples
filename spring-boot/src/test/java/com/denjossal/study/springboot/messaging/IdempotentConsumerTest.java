@@ -1,10 +1,9 @@
 package com.denjossal.study.springboot.messaging;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class IdempotentConsumerTest {
 

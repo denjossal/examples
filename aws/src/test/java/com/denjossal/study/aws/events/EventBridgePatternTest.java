@@ -1,11 +1,10 @@
 package com.denjossal.study.aws.events;
 
-import com.denjossal.study.aws.events.EventBridgePattern.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.aws.events.EventBridgePattern.*;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class EventBridgePatternTest {
 
@@ -13,8 +12,7 @@ class EventBridgePatternTest {
     void shouldRouteEventToMatchingTargets() {
         var eb = EventBridgePattern.ecommerceSetup();
 
-        var event = CloudEvent.of("order-service", "OrderPlaced",
-                Map.of("orderId", "ORD-1", "amount", 50.0));
+        var event = CloudEvent.of("order-service", "OrderPlaced", Map.of("orderId", "ORD-1", "amount", 50.0));
 
         var targets = eb.putEvent(event);
 
@@ -26,8 +24,7 @@ class EventBridgePatternTest {
         var eb = EventBridgePattern.ecommerceSetup();
 
         // High-value order triggers both order-processing AND fraud-detection rules
-        var event = CloudEvent.of("order-service", "OrderPlaced",
-                Map.of("orderId", "ORD-2", "amount", 5000.0));
+        var event = CloudEvent.of("order-service", "OrderPlaced", Map.of("orderId", "ORD-2", "amount", 5000.0));
 
         var targets = eb.putEvent(event);
 
@@ -38,8 +35,7 @@ class EventBridgePatternTest {
     void shouldRoutePaymentEvents() {
         var eb = EventBridgePattern.ecommerceSetup();
 
-        var event = CloudEvent.of("payment-service", "PaymentCompleted",
-                Map.of("paymentId", "PAY-1"));
+        var event = CloudEvent.of("payment-service", "PaymentCompleted", Map.of("paymentId", "PAY-1"));
 
         var targets = eb.putEvent(event);
 

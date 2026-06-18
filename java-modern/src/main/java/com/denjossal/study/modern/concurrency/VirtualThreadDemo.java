@@ -29,7 +29,7 @@ public class VirtualThreadDemo {
     public static long[] compareConcurrencyApproaches(int taskCount) throws Exception {
         long sequentialTime = runSequentially(taskCount);
         long concurrentTime = runWithThreadPool(taskCount);
-        return new long[]{sequentialTime, concurrentTime};
+        return new long[] {sequentialTime, concurrentTime};
     }
 
     static long runSequentially(int taskCount) {
@@ -44,9 +44,8 @@ public class VirtualThreadDemo {
 
     static long runWithThreadPool(int taskCount) throws Exception {
         Instant start = Instant.now();
-        ExecutorService executor = Executors.newFixedThreadPool(
-                Runtime.getRuntime().availableProcessors() * 2
-        );
+        ExecutorService executor =
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
         List<Future<String>> futures = new ArrayList<>();
         for (int i = 0; i < taskCount; i++) {
@@ -68,16 +67,10 @@ public class VirtualThreadDemo {
      * Demonstrates CompletableFuture composition (thenCombine, thenCompose).
      */
     public static CompletableFuture<String> fetchUserProfile(int userId) {
-        CompletableFuture<String> nameFuture = CompletableFuture.supplyAsync(
-                () -> simulateIOTask(userId)
-        );
-        CompletableFuture<Integer> ageFuture = CompletableFuture.supplyAsync(
-                () -> 25 + (userId % 40)
-        );
+        CompletableFuture<String> nameFuture = CompletableFuture.supplyAsync(() -> simulateIOTask(userId));
+        CompletableFuture<Integer> ageFuture = CompletableFuture.supplyAsync(() -> 25 + (userId % 40));
 
-        return nameFuture.thenCombine(ageFuture,
-                (name, age) -> "User %s, age %d".formatted(name, age)
-        );
+        return nameFuture.thenCombine(ageFuture, (name, age) -> "User %s, age %d".formatted(name, age));
     }
 
     private static String simulateIOTask(int id) {

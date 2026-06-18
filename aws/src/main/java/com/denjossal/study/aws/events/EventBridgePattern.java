@@ -19,12 +19,7 @@ import java.util.function.Predicate;
  */
 public class EventBridgePattern {
 
-    public record CloudEvent(
-            String source,
-            String detailType,
-            Map<String, Object> detail,
-            Instant time
-    ) {
+    public record CloudEvent(String source, String detailType, Map<String, Object> detail, Instant time) {
         public static CloudEvent of(String source, String detailType, Map<String, Object> detail) {
             return new CloudEvent(source, detailType, detail, Instant.now());
         }
@@ -71,25 +66,26 @@ public class EventBridgePattern {
         var eb = new EventBridgePattern();
 
         // Order events → fulfillment + analytics
-        eb.addRule("order-processing",
-                event -> event.source().equals("order-service") && event.detailType().equals("OrderPlaced"),
-                List.of("fulfillment-lambda", "analytics-firehose")
-        );
+        eb.addRule(
+                "order-processing",
+                event -> event.source().equals("order-service")
+                        && event.detailType().equals("OrderPlaced"),
+                List.of("fulfillment-lambda", "analytics-firehose"));
 
         // Payment events → notification service
-        eb.addRule("payment-notifications",
+        eb.addRule(
+                "payment-notifications",
                 event -> event.source().equals("payment-service"),
-                List.of("notification-lambda")
-        );
+                List.of("notification-lambda"));
 
         // High-value orders → fraud detection
-        eb.addRule("fraud-detection",
+        eb.addRule(
+                "fraud-detection",
                 event -> {
                     var amount = event.detail().getOrDefault("amount", 0);
                     return amount instanceof Number n && n.doubleValue() > 1000;
                 },
-                List.of("fraud-step-function")
-        );
+                List.of("fraud-step-function"));
 
         return eb;
     }

@@ -25,15 +25,11 @@ public class Java9To11Features {
     // ─── Java 9: Stream enhancements ────────────────────────────────────────
 
     public static List<Integer> takeWhileLessThan(List<Integer> numbers, int limit) {
-        return numbers.stream()
-                .takeWhile(n -> n < limit)
-                .toList();
+        return numbers.stream().takeWhile(n -> n < limit).toList();
     }
 
     public static List<Integer> dropWhileLessThan(List<Integer> numbers, int limit) {
-        return numbers.stream()
-                .dropWhile(n -> n < limit)
-                .toList();
+        return numbers.stream().dropWhile(n -> n < limit).toList();
     }
 
     public static Stream<Integer> iterateWithPredicate(int seed, int max) {
@@ -46,10 +42,7 @@ public class Java9To11Features {
     public static String optionalOrAction(Optional<String> opt) {
         // ifPresentOrElse: handle both cases
         var result = new StringBuilder();
-        opt.ifPresentOrElse(
-                val -> result.append("Found: ").append(val),
-                () -> result.append("Not found")
-        );
+        opt.ifPresentOrElse(val -> result.append("Found: ").append(val), () -> result.append("Not found"));
         return result.toString();
     }
 
@@ -63,10 +56,8 @@ public class Java9To11Features {
     public static List<String> processWithVar(List<String> items) {
         // var infers the type — useful for long generic types
         var result = new ArrayList<String>();
-        var filtered = items.stream()
-                .filter(s -> !s.isBlank())
-                .map(String::trim)
-                .toList();
+        var filtered =
+                items.stream().filter(s -> !s.isBlank()).map(String::trim).toList();
         result.addAll(filtered);
         return result;
     }
@@ -74,9 +65,7 @@ public class Java9To11Features {
     // ─── Java 10: Unmodifiable collectors ───────────────────────────────────
 
     public static List<Integer> toUnmodifiableList(List<Integer> numbers) {
-        return numbers.stream()
-                .filter(n -> n > 0)
-                .collect(Collectors.toUnmodifiableList());
+        return numbers.stream().filter(n -> n > 0).collect(Collectors.toUnmodifiableList());
     }
 
     // ─── Java 11: String methods ────────────────────────────────────────────
@@ -97,8 +86,6 @@ public class Java9To11Features {
 
     public static List<String> annotatedLambda(List<String> items) {
         // var in lambda allows annotations: (@NonNull var x) -> ...
-        return items.stream()
-                .map((var s) -> s.toLowerCase())
-                .toList();
+        return items.stream().map((var s) -> s.toLowerCase()).toList();
     }
 }

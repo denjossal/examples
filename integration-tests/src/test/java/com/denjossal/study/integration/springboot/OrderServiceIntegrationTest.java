@@ -1,9 +1,13 @@
 package com.denjossal.study.integration.springboot;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.awaitility.Awaitility.await;
+
 import com.denjossal.study.integration.springboot.inventory.InventoryEventListener;
 import com.denjossal.study.integration.springboot.order.OrderController;
+import com.denjossal.study.integration.springboot.order.OrderEntity;
 import com.denjossal.study.integration.springboot.order.OrderRepository;
-import com.denjossal.study.integration.springboot.order.OrderService;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +21,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.kafka.KafkaContainer;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.awaitility.Awaitility.await;
-
-import com.denjossal.study.integration.springboot.order.OrderEntity;
-
 /**
  * Full Spring Boot integration test with real Kafka + PostgreSQL.
  *
@@ -34,15 +31,12 @@ import com.denjossal.study.integration.springboot.order.OrderEntity;
  * 4. Order lifecycle: PENDING → CONFIRMED → (or CANCELLED)
  */
 @Testcontainers
-@SpringBootTest(
-        classes = OrderApplication.class,
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(classes = OrderApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class OrderServiceIntegrationTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("orders_db");
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName("orders_db");
 
     @Container
     static final KafkaContainer kafka = new KafkaContainer("apache/kafka:3.8.0");
@@ -77,8 +71,7 @@ class OrderServiceIntegrationTest {
     void shouldPlaceOrderAndPublishEvent() {
         var request = new OrderController.PlaceOrderRequest("CUST-1", "PROD-A", 3, 89.97);
 
-        var response = restTemplate.postForEntity(
-                "/api/orders", request, OrderEntity.class);
+        var response = restTemplate.postForEntity("/api/orders", request, OrderEntity.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
@@ -91,39 +84,38 @@ class OrderServiceIntegrationTest {
         assertThat(saved.get().getTotal()).isEqualTo(89.97);
 
         // Verify Kafka event received by consumer
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() ->
-                assertThat(inventoryListener.getProcessedEvents())
-                        .anyMatch(e -> e.contains("OrderPlaced") && e.contains("PROD-A"))
-        );
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> assertThat(inventoryListener.getProcessedEvents())
+                .anyMatch(e -> e.contains("OrderPlaced") && e.contains("PROD-A")));
     }
 
     @Test
     void shouldConfirmOrderAndPublishEvent() {
         // Place order
         var request = new OrderController.PlaceOrderRequest("CUST-2", "PROD-B", 1, 50.00);
-        var placed = restTemplate.postForEntity("/api/orders", request, OrderEntity.class).getBody();
+        var placed = restTemplate
+                .postForEntity("/api/orders", request, OrderEntity.class)
+                .getBody();
 
         // Confirm
-        var response = restTemplate.postForEntity(
-                "/api/orders/" + placed.getId() + "/confirm", null, OrderEntity.class);
+        var response =
+                restTemplate.postForEntity("/api/orders/" + placed.getId() + "/confirm", null, OrderEntity.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().getStatus()).isEqualTo(OrderEntity.OrderStatus.CONFIRMED);
 
         // Verify event
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() ->
-                assertThat(inventoryListener.getProcessedEvents())
-                        .anyMatch(e -> e.contains("OrderConfirmed"))
-        );
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> assertThat(inventoryListener.getProcessedEvents())
+                .anyMatch(e -> e.contains("OrderConfirmed")));
     }
 
     @Test
     void shouldCancelOrderAndPublishEvent() {
         var request = new OrderController.PlaceOrderRequest("CUST-3", "PROD-C", 2, 100.00);
-        var placed = restTemplate.postForEntity("/api/orders", request, OrderEntity.class).getBody();
+        var placed = restTemplate
+                .postForEntity("/api/orders", request, OrderEntity.class)
+                .getBody();
 
-        var response = restTemplate.postForEntity(
-                "/api/orders/" + placed.getId() + "/cancel", null, OrderEntity.class);
+        var response = restTemplate.postForEntity("/api/orders/" + placed.getId() + "/cancel", null, OrderEntity.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().getStatus()).isEqualTo(OrderEntity.OrderStatus.CANCELLED);
@@ -136,15 +128,14 @@ class OrderServiceIntegrationTest {
     @Test
     void shouldQueryOrdersByCustomer() {
         // Place multiple orders for same customer
-        restTemplate.postForEntity("/api/orders",
-                new OrderController.PlaceOrderRequest("CUST-4", "P1", 1, 10.0), OrderEntity.class);
-        restTemplate.postForEntity("/api/orders",
-                new OrderController.PlaceOrderRequest("CUST-4", "P2", 2, 20.0), OrderEntity.class);
-        restTemplate.postForEntity("/api/orders",
-                new OrderController.PlaceOrderRequest("CUST-5", "P3", 1, 30.0), OrderEntity.class);
+        restTemplate.postForEntity(
+                "/api/orders", new OrderController.PlaceOrderRequest("CUST-4", "P1", 1, 10.0), OrderEntity.class);
+        restTemplate.postForEntity(
+                "/api/orders", new OrderController.PlaceOrderRequest("CUST-4", "P2", 2, 20.0), OrderEntity.class);
+        restTemplate.postForEntity(
+                "/api/orders", new OrderController.PlaceOrderRequest("CUST-5", "P3", 1, 30.0), OrderEntity.class);
 
-        var response = restTemplate.getForEntity(
-                "/api/orders/customer/CUST-4", OrderEntity[].class);
+        var response = restTemplate.getForEntity("/api/orders/customer/CUST-4", OrderEntity[].class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(2);
@@ -153,7 +144,9 @@ class OrderServiceIntegrationTest {
     @Test
     void shouldPersistAcrossMultipleOperations() {
         var request = new OrderController.PlaceOrderRequest("CUST-6", "PROD-D", 5, 250.00);
-        var placed = restTemplate.postForEntity("/api/orders", request, OrderEntity.class).getBody();
+        var placed = restTemplate
+                .postForEntity("/api/orders", request, OrderEntity.class)
+                .getBody();
 
         // Confirm then verify the full history is in DB
         restTemplate.postForEntity("/api/orders/" + placed.getId() + "/confirm", null, OrderEntity.class);

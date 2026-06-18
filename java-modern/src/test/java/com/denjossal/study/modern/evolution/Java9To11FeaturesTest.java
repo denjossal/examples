@@ -1,10 +1,9 @@
 package com.denjossal.study.modern.evolution;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class Java9To11FeaturesTest {
 

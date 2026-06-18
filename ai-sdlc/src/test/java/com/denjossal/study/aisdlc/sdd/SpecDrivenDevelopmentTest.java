@@ -1,11 +1,10 @@
 package com.denjossal.study.aisdlc.sdd;
 
-import com.denjossal.study.aisdlc.sdd.SpecDrivenDevelopment.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.aisdlc.sdd.SpecDrivenDevelopment.*;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class SpecDrivenDevelopmentTest {
 
@@ -17,8 +16,7 @@ class SpecDrivenDevelopmentTest {
                 "User Authentication",
                 "Implement JWT-based auth for the REST API",
                 List.of("Login returns JWT token", "Protected endpoints require valid token"),
-                List.of("OAuth2 integration", "Password reset flow")
-        );
+                List.of("OAuth2 integration", "Password reset flow"));
 
         assertThat(spec.id()).isNotNull();
         assertThat(spec.title()).isEqualTo("User Authentication");
@@ -30,11 +28,11 @@ class SpecDrivenDevelopmentTest {
         var spec = sdd.createSpec("Feature", "desc", List.of("AC1"), List.of());
         assertThat(sdd.currentPhase(spec.id())).isEqualTo(Phase.SPEC);
 
-        sdd.createPlan(spec.id(),
+        sdd.createPlan(
+                spec.id(),
                 List.of(new PlanStep(1, "Create user entity", List.of("User.java"), List.of())),
                 List.of("Tight deadline"),
-                "2 days"
-        );
+                "2 days");
         assertThat(sdd.currentPhase(spec.id())).isEqualTo(Phase.PLAN);
 
         sdd.decomposePlanIntoTasks(spec.id(), "AI");
@@ -44,13 +42,13 @@ class SpecDrivenDevelopmentTest {
     @Test
     void shouldDecomposePlanIntoTasks() {
         var spec = sdd.createSpec("Feature", "desc", List.of("AC1"), List.of());
-        sdd.createPlan(spec.id(),
+        sdd.createPlan(
+                spec.id(),
                 List.of(
                         new PlanStep(1, "Setup project", List.of("pom.xml"), List.of()),
-                        new PlanStep(2, "Implement logic", List.of("Service.java"), List.of(1))
-                ),
-                List.of(), "1 day"
-        );
+                        new PlanStep(2, "Implement logic", List.of("Service.java"), List.of(1))),
+                List.of(),
+                "1 day");
 
         var tasks = sdd.decomposePlanIntoTasks(spec.id(), "Claude");
 

@@ -1,14 +1,13 @@
 package com.denjossal.study.integration.cache;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.sql.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.*;
 import redis.clients.jedis.Jedis;
-
-import java.sql.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Cache-Aside (Lazy Loading) pattern with Redis + PostgreSQL.
@@ -27,13 +26,12 @@ import static org.assertj.core.api.Assertions.*;
 class CacheAsidePatternTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("cache_db");
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName("cache_db");
 
     @Container
     @SuppressWarnings("resource")
-    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
-            .withExposedPorts(6379);
+    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
 
     private Connection db;
     private Jedis cache;
@@ -41,13 +39,13 @@ class CacheAsidePatternTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        db = DriverManager.getConnection(
-                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+        db = DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
         cache = new Jedis(redis.getHost(), redis.getMappedPort(6379));
         dbQueryCount = 0;
 
         try (var stmt = db.createStatement()) {
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS users (
                         id VARCHAR(50) PRIMARY KEY,
                         name VARCHAR(100) NOT NULL,

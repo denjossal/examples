@@ -1,8 +1,9 @@
 package com.denjossal.study.algorithms.backtracking;
 
-import org.junit.jupiter.api.Test;
-import java.util.List;
 import static org.assertj.core.api.Assertions.*;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class SubsetsTest {
 
@@ -10,7 +11,7 @@ class SubsetsTest {
 
     @Test
     void shouldGenerateAllSubsets() {
-        var result = solution.solve(new int[]{1, 2, 3});
+        var result = solution.solve(new int[] {1, 2, 3});
         assertThat(result).hasSize(8); // 2^3
         assertThat(result).contains(List.of());
         assertThat(result).contains(List.of(1, 2, 3));
@@ -19,7 +20,7 @@ class SubsetsTest {
 
     @Test
     void shouldHandleSingleElement() {
-        var result = solution.solve(new int[]{0});
+        var result = solution.solve(new int[] {0});
         assertThat(result).hasSize(2);
         assertThat(result).contains(List.of());
         assertThat(result).contains(List.of(0));

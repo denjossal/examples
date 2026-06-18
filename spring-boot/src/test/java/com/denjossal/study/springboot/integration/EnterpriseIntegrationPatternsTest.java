@@ -1,11 +1,10 @@
 package com.denjossal.study.springboot.integration;
 
-import com.denjossal.study.springboot.integration.EnterpriseIntegrationPatterns.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.springboot.integration.EnterpriseIntegrationPatterns.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
 
 class EnterpriseIntegrationPatternsTest {
 
@@ -14,8 +13,7 @@ class EnterpriseIntegrationPatternsTest {
         var messages = List.of(
                 Message.of("order-123", "type", "order"),
                 Message.of("payment-456", "type", "payment"),
-                Message.of("unknown-789", "type", "unknown")
-        );
+                Message.of("unknown-789", "type", "unknown"));
 
         var orders = new ArrayList<Message>();
         var payments = new ArrayList<Message>();
@@ -25,8 +23,7 @@ class EnterpriseIntegrationPatternsTest {
                 messages,
                 msg -> msg.headers().get("type"),
                 Map.of("order", orders::add, "payment", payments::add),
-                deadLetters::add
-        );
+                deadLetters::add);
 
         assertThat(orders).hasSize(1);
         assertThat(payments).hasSize(1);
@@ -45,10 +42,8 @@ class EnterpriseIntegrationPatternsTest {
 
     @Test
     void shouldAggregateMessages() {
-        var messages = List.of(
-                Message.of("result-1", "source", "service-a"),
-                Message.of("result-2", "source", "service-b")
-        );
+        var messages =
+                List.of(Message.of("result-1", "source", "service-a"), Message.of("result-2", "source", "service-b"));
 
         var aggregated = EnterpriseIntegrationPatterns.aggregator(messages, " | ");
 

@@ -11,9 +11,7 @@ import java.util.PriorityQueue;
 public class KClosestPoints {
 
     public int[][] solve(int[][] points, int k) {
-        PriorityQueue<int[]> maxHeap = new PriorityQueue<>(
-                (a, b) -> dist(b) - dist(a)
-        );
+        PriorityQueue<int[]> maxHeap = new PriorityQueue<>((a, b) -> dist(b) - dist(a));
 
         for (int[] point : points) {
             maxHeap.offer(point);

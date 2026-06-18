@@ -1,9 +1,9 @@
 package com.denjossal.study.aws.dynamodb;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.*;
 
 class SingleTableDesignTest {
 

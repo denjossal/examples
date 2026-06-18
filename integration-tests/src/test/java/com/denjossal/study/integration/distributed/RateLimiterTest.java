@@ -1,13 +1,12 @@
 package com.denjossal.study.integration.distributed;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.List;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.*;
 import redis.clients.jedis.Jedis;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Distributed Rate Limiter with Redis — Sliding Window and Token Bucket.
@@ -25,8 +24,7 @@ class RateLimiterTest {
 
     @Container
     @SuppressWarnings("resource")
-    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
-            .withExposedPorts(6379);
+    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
 
     private Jedis jedis;
 
@@ -147,7 +145,8 @@ class RateLimiterTest {
         long windowStart = now - windowMs;
 
         // Lua for atomicity
-        String script = """
+        String script =
+                """
                 local key = KEYS[1]
                 local now = tonumber(ARGV[1])
                 local window_start = tonumber(ARGV[2])
@@ -164,9 +163,11 @@ class RateLimiterTest {
                     return 0
                 end
                 """;
-        Object result = jedis.eval(script,
+        Object result = jedis.eval(
+                script,
                 List.of(key),
-                List.of(String.valueOf(now), String.valueOf(windowStart),
+                List.of(
+                        String.valueOf(now), String.valueOf(windowStart),
                         String.valueOf(limit), String.valueOf(windowMs)));
         return Long.valueOf(1).equals(result);
     }
@@ -177,7 +178,8 @@ class RateLimiterTest {
     }
 
     private boolean tokenBucketAllow(String key, int capacity, int refillRate) {
-        String script = """
+        String script =
+                """
                 local key = KEYS[1]
                 local capacity = tonumber(ARGV[1])
                 local refill_rate = tonumber(ARGV[2])
@@ -199,9 +201,12 @@ class RateLimiterTest {
                     return 0
                 end
                 """;
-        Object result = jedis.eval(script,
+        Object result = jedis.eval(
+                script,
                 List.of(key),
-                List.of(String.valueOf(capacity), String.valueOf(refillRate),
+                List.of(
+                        String.valueOf(capacity),
+                        String.valueOf(refillRate),
                         String.valueOf(System.currentTimeMillis())));
         return Long.valueOf(1).equals(result);
     }

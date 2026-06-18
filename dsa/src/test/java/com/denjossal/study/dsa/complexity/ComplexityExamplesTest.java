@@ -1,14 +1,15 @@
 package com.denjossal.study.dsa.complexity;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class ComplexityExamplesTest {
 
     @Test
     void shouldGetMiddleElement_O1() {
-        assertThat(ComplexityExamples.getMiddleElement(new int[]{1, 2, 3, 4, 5})).isEqualTo(3);
+        assertThat(ComplexityExamples.getMiddleElement(new int[] {1, 2, 3, 4, 5}))
+                .isEqualTo(3);
     }
 
     @Test
@@ -20,30 +21,31 @@ class ComplexityExamplesTest {
 
     @Test
     void shouldFindMax_ON() {
-        assertThat(ComplexityExamples.findMax(new int[]{3, 1, 7, 2, 9, 4})).isEqualTo(9);
+        assertThat(ComplexityExamples.findMax(new int[] {3, 1, 7, 2, 9, 4})).isEqualTo(9);
     }
 
     @Test
     void shouldDetectDuplicate_ON() {
-        assertThat(ComplexityExamples.hasDuplicate(new int[]{1, 2, 3, 4, 5})).isFalse();
-        assertThat(ComplexityExamples.hasDuplicate(new int[]{1, 2, 3, 2, 5})).isTrue();
+        assertThat(ComplexityExamples.hasDuplicate(new int[] {1, 2, 3, 4, 5})).isFalse();
+        assertThat(ComplexityExamples.hasDuplicate(new int[] {1, 2, 3, 2, 5})).isTrue();
     }
 
     @Test
     void shouldMergeSort_ONLogN() {
-        int[] result = ComplexityExamples.mergeSort(new int[]{5, 2, 8, 1, 9, 3});
+        int[] result = ComplexityExamples.mergeSort(new int[] {5, 2, 8, 1, 9, 3});
         assertThat(result).containsExactly(1, 2, 3, 5, 8, 9);
     }
 
     @Test
     void shouldMergeSortEmpty() {
-        assertThat(ComplexityExamples.mergeSort(new int[]{})).isEmpty();
+        assertThat(ComplexityExamples.mergeSort(new int[] {})).isEmpty();
     }
 
     @Test
     void shouldFindPairWithSum_ON2() {
-        assertThat(ComplexityExamples.hasPairWithSum(new int[]{1, 3, 5, 7}, 8)).isTrue();
-        assertThat(ComplexityExamples.hasPairWithSum(new int[]{1, 3, 5, 7}, 20)).isFalse();
+        assertThat(ComplexityExamples.hasPairWithSum(new int[] {1, 3, 5, 7}, 8)).isTrue();
+        assertThat(ComplexityExamples.hasPairWithSum(new int[] {1, 3, 5, 7}, 20))
+                .isFalse();
     }
 
     @Test
@@ -65,11 +67,12 @@ class ComplexityExamplesTest {
 
     @Test
     void shouldSumIterative_O1Space() {
-        assertThat(ComplexityExamples.sumIterative(new int[]{1, 2, 3, 4, 5})).isEqualTo(15);
+        assertThat(ComplexityExamples.sumIterative(new int[] {1, 2, 3, 4, 5})).isEqualTo(15);
     }
 
     @Test
     void shouldSumRecursive_ONSpace() {
-        assertThat(ComplexityExamples.sumRecursive(new int[]{1, 2, 3, 4, 5}, 0)).isEqualTo(15);
+        assertThat(ComplexityExamples.sumRecursive(new int[] {1, 2, 3, 4, 5}, 0))
+                .isEqualTo(15);
     }
 }

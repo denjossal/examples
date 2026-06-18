@@ -29,14 +29,16 @@ public class DistributedTracing {
             Instant startTime,
             Instant endTime,
             Map<String, String> tags,
-            SpanStatus status
-    ) {
+            SpanStatus status) {
         public long durationMs() {
             return endTime.toEpochMilli() - startTime.toEpochMilli();
         }
     }
 
-    public enum SpanStatus { OK, ERROR }
+    public enum SpanStatus {
+        OK,
+        ERROR
+    }
 
     private final Map<String, List<Span>> traces = new ConcurrentHashMap<>();
 
@@ -53,8 +55,7 @@ public class DistributedTracing {
     }
 
     public Optional<Span> findSlowestSpan(String traceId) {
-        return getTrace(traceId).stream()
-                .max(Comparator.comparingLong(Span::durationMs));
+        return getTrace(traceId).stream().max(Comparator.comparingLong(Span::durationMs));
     }
 
     public List<Span> findErrors(String traceId) {
@@ -80,8 +81,12 @@ public class DistributedTracing {
         private final Map<String, String> tags = new HashMap<>();
         private final Instant startTime = Instant.now();
 
-        SpanBuilder(DistributedTracing tracer, String operationName, String serviceName,
-                    String traceId, String parentSpanId) {
+        SpanBuilder(
+                DistributedTracing tracer,
+                String operationName,
+                String serviceName,
+                String traceId,
+                String parentSpanId) {
             this.tracer = tracer;
             this.operationName = operationName;
             this.serviceName = serviceName;
@@ -104,8 +109,7 @@ public class DistributedTracing {
                     startTime,
                     Instant.now(),
                     Map.copyOf(tags),
-                    status
-            );
+                    status);
             tracer.recordSpan(span);
             return span;
         }

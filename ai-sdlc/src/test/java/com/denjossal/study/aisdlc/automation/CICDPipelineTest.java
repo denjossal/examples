@@ -1,11 +1,10 @@
 package com.denjossal.study.aisdlc.automation;
 
-import com.denjossal.study.aisdlc.automation.CICDPipeline.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.*;
+
+import com.denjossal.study.aisdlc.automation.CICDPipeline.*;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class CICDPipelineTest {
 
@@ -24,7 +23,8 @@ class CICDPipelineTest {
     void shouldSkipDeployOnNonMainBranch() {
         var run = pipeline.run("feature/auth", "wip", List.of("Auth.java"));
 
-        var deploy = run.stages().stream().filter(s -> s.name().equals("deploy")).findFirst();
+        var deploy =
+                run.stages().stream().filter(s -> s.name().equals("deploy")).findFirst();
         assertThat(deploy).isPresent();
         assertThat(deploy.get().status()).isEqualTo(StageStatus.SKIPPED);
     }
@@ -33,7 +33,8 @@ class CICDPipelineTest {
     void shouldFailOnCriticalSecurityFinding() {
         var run = pipeline.run("main", "add config", List.of("password.txt"));
 
-        var review = run.stages().stream().filter(s -> s.name().equals("ai-review")).findFirst();
+        var review =
+                run.stages().stream().filter(s -> s.name().equals("ai-review")).findFirst();
         assertThat(review).isPresent();
         assertThat(review.get().status()).isEqualTo(StageStatus.FAILED);
 

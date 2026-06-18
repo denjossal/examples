@@ -1,10 +1,9 @@
 package com.denjossal.study.integration.springboot.order;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -20,9 +19,10 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderEntity> placeOrder(@RequestBody PlaceOrderRequest request) {
-        var order = orderService.placeOrder(
-                request.customerId(), request.productId(), request.quantity(), request.total());
-        return ResponseEntity.created(URI.create("/api/orders/" + order.getId())).body(order);
+        var order =
+                orderService.placeOrder(request.customerId(), request.productId(), request.quantity(), request.total());
+        return ResponseEntity.created(URI.create("/api/orders/" + order.getId()))
+                .body(order);
     }
 
     @PostMapping("/{id}/confirm")

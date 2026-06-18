@@ -1,16 +1,15 @@
 package com.denjossal.study.integration.distributed;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.UUID;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
-
-import java.util.UUID;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Distributed Lock with Redis — ensures mutual exclusion across multiple service instances.
@@ -28,8 +27,7 @@ class DistributedLockTest {
 
     @Container
     @SuppressWarnings("resource")
-    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
-            .withExposedPorts(6379);
+    static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
 
     private String redisHost;
     private int redisPort;
@@ -152,7 +150,8 @@ class DistributedLockTest {
 
     private boolean release(Jedis jedis, String key, String expectedToken) {
         // Lua script ensures atomic check-and-delete (no race between GET and DEL)
-        String script = """
+        String script =
+                """
                 if redis.call('get', KEYS[1]) == ARGV[1] then
                     return redis.call('del', KEYS[1])
                 else

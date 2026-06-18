@@ -1,13 +1,13 @@
 package com.denjossal.study.springboot.api;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
@@ -17,9 +17,11 @@ class UserControllerTest {
 
     @Test
     void shouldCreateUser() throws Exception {
-        mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/v1/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {"name": "Alice", "email": "alice@test.com", "age": 30}
                                 """))
                 .andExpect(status().isCreated())
@@ -30,15 +32,16 @@ class UserControllerTest {
 
     @Test
     void shouldReturn404ForMissingUser() throws Exception {
-        mockMvc.perform(get("/api/v1/users/nonexistent"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/users/nonexistent")).andExpect(status().isNotFound());
     }
 
     @Test
     void shouldListUsers() throws Exception {
-        mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/v1/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {"name": "Bob", "email": "bob@test.com", "age": 25}
                                 """))
                 .andExpect(status().isCreated());
@@ -50,9 +53,11 @@ class UserControllerTest {
 
     @Test
     void shouldDeleteUser() throws Exception {
-        var result = mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        var result = mockMvc.perform(
+                        post("/api/v1/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {"name": "ToDelete", "email": "del@test.com", "age": 20}
                                 """))
                 .andExpect(status().isCreated())
@@ -60,10 +65,8 @@ class UserControllerTest {
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(delete(location))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete(location)).andExpect(status().isNoContent());
 
-        mockMvc.perform(get(location))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get(location)).andExpect(status().isNotFound());
     }
 }

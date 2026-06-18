@@ -1,5 +1,10 @@
 package com.denjossal.study.integration.saga;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.sql.*;
+import java.time.Duration;
+import java.util.*;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
@@ -8,12 +13,6 @@ import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.kafka.KafkaContainer;
-
-import java.sql.*;
-import java.time.Duration;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Saga Pattern — distributed transaction across services via events.
@@ -39,31 +38,32 @@ class SagaPatternTest {
     static final KafkaContainer kafka = new KafkaContainer("apache/kafka:3.8.0");
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("saga_db");
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName("saga_db");
 
     private Connection conn;
 
     @BeforeAll
     static void createTopics() throws Exception {
-        try (var admin = AdminClient.create(Map.of(
-                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
+        try (var admin =
+                AdminClient.create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
             admin.createTopics(List.of(
-                    new NewTopic("order.created", 1, (short) 1),
-                    new NewTopic("inventory.reserved", 1, (short) 1),
-                    new NewTopic("inventory.released", 1, (short) 1),
-                    new NewTopic("payment.completed", 1, (short) 1),
-                    new NewTopic("payment.failed", 1, (short) 1)
-            )).all().get();
+                            new NewTopic("order.created", 1, (short) 1),
+                            new NewTopic("inventory.reserved", 1, (short) 1),
+                            new NewTopic("inventory.released", 1, (short) 1),
+                            new NewTopic("payment.completed", 1, (short) 1),
+                            new NewTopic("payment.failed", 1, (short) 1)))
+                    .all()
+                    .get();
         }
     }
 
     @BeforeEach
     void setUp() throws SQLException {
-        conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+        conn = DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
         try (var stmt = conn.createStatement()) {
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS orders (
                         id VARCHAR(50) PRIMARY KEY,
                         customer_id VARCHAR(50) NOT NULL,
@@ -71,7 +71,8 @@ class SagaPatternTest {
                         status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
                     )
                     """);
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS inventory (
                         product_id VARCHAR(50) PRIMARY KEY,
                         quantity INTEGER NOT NULL,
@@ -101,21 +102,32 @@ class SagaPatternTest {
         assertOrderStatus(orderId, "PENDING");
 
         // Step 2: Publish order.created event
-        publishEvent("order.created", orderId, """
+        publishEvent(
+                "order.created",
+                orderId,
+                """
                 {"orderId":"%s","productId":"PROD-1","quantity":2,"total":99.99}
-                """.formatted(orderId));
+                """
+                        .formatted(orderId));
 
         // Step 3: Inventory service processes → reserves stock
         String event = consumeEvent("order.created", "inventory-service");
         assertThat(event).contains(orderId);
         reserveInventory("PROD-1", 2);
-        publishEvent("inventory.reserved", orderId, """
+        publishEvent(
+                "inventory.reserved",
+                orderId,
+                """
                 {"orderId":"%s","productId":"PROD-1","quantity":2}
-                """.formatted(orderId));
+                """
+                        .formatted(orderId));
 
         // Step 4: Payment service processes → charges
         consumeEvent("inventory.reserved", "payment-service");
-        publishEvent("payment.completed", orderId, """
+        publishEvent(
+                "payment.completed",
+                orderId,
+                """
                 {"orderId":"%s","amount":99.99}
                 """.formatted(orderId));
 
@@ -137,27 +149,43 @@ class SagaPatternTest {
         createOrder(orderId, "CUST-2", 500.00);
 
         // Order created → inventory reserved
-        publishEvent("order.created", orderId, """
+        publishEvent(
+                "order.created",
+                orderId,
+                """
                 {"orderId":"%s","productId":"PROD-2","quantity":1}
-                """.formatted(orderId));
+                """
+                        .formatted(orderId));
         consumeEvent("order.created", "inventory-svc-comp");
         reserveInventory("PROD-2", 1);
-        publishEvent("inventory.reserved", orderId, """
+        publishEvent(
+                "inventory.reserved",
+                orderId,
+                """
                 {"orderId":"%s","productId":"PROD-2","quantity":1}
-                """.formatted(orderId));
+                """
+                        .formatted(orderId));
 
         // Payment FAILS
         consumeEvent("inventory.reserved", "payment-svc-comp");
-        publishEvent("payment.failed", orderId, """
+        publishEvent(
+                "payment.failed",
+                orderId,
+                """
                 {"orderId":"%s","reason":"insufficient_funds"}
-                """.formatted(orderId));
+                """
+                        .formatted(orderId));
 
         // Compensation: release inventory
         consumeEvent("payment.failed", "inventory-comp");
         releaseInventory("PROD-2", 1);
-        publishEvent("inventory.released", orderId, """
+        publishEvent(
+                "inventory.released",
+                orderId,
+                """
                 {"orderId":"%s","productId":"PROD-2","quantity":1}
-                """.formatted(orderId));
+                """
+                        .formatted(orderId));
 
         // Compensation: cancel order
         consumeEvent("payment.failed", "order-comp");
@@ -189,8 +217,8 @@ class SagaPatternTest {
     }
 
     private void insertInventory(String productId, int quantity) throws SQLException {
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO inventory (product_id, quantity, reserved) VALUES (?, ?, 0)")) {
+        try (var ps =
+                conn.prepareStatement("INSERT INTO inventory (product_id, quantity, reserved) VALUES (?, ?, 0)")) {
             ps.setString(1, productId);
             ps.setInt(2, quantity);
             ps.executeUpdate();
@@ -209,8 +237,7 @@ class SagaPatternTest {
     }
 
     private void releaseInventory(String productId, int qty) throws SQLException {
-        try (var ps = conn.prepareStatement(
-                "UPDATE inventory SET reserved = reserved - ? WHERE product_id = ?")) {
+        try (var ps = conn.prepareStatement("UPDATE inventory SET reserved = reserved - ? WHERE product_id = ?")) {
             ps.setInt(1, qty);
             ps.setString(2, productId);
             ps.executeUpdate();
@@ -239,8 +266,7 @@ class SagaPatternTest {
         try (var producer = new KafkaProducer<String, String>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName(),
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()
-        ))) {
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName()))) {
             producer.send(new ProducerRecord<>(topic, key, value)).get();
         }
     }
@@ -251,8 +277,7 @@ class SagaPatternTest {
                 ConsumerConfig.GROUP_ID_CONFIG, groupId,
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()
-        ))) {
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName()))) {
             consumer.subscribe(List.of(topic));
             long deadline = System.currentTimeMillis() + 10_000;
             while (System.currentTimeMillis() < deadline) {

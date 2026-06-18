@@ -1,13 +1,12 @@
 package com.denjossal.study.integration.postgres;
 
-import org.junit.jupiter.api.*;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.sql.*;
 import java.util.*;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.*;
 
 /**
  * Real PostgreSQL integration test using Testcontainers.
@@ -26,11 +25,11 @@ class PostgreSQLIntegrationTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+        conn = DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
 
         try (var stmt = conn.createStatement()) {
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS users (
                         id SERIAL PRIMARY KEY,
                         name VARCHAR(100) NOT NULL,
@@ -38,7 +37,8 @@ class PostgreSQLIntegrationTest {
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                     """);
-            stmt.execute("""
+            stmt.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS orders (
                         id SERIAL PRIMARY KEY,
                         user_id INTEGER REFERENCES users(id),
@@ -60,8 +60,7 @@ class PostgreSQLIntegrationTest {
 
     @Test
     void shouldInsertAndQueryUser() throws SQLException {
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO users (name, email) VALUES (?, ?) RETURNING id")) {
+        try (var ps = conn.prepareStatement("INSERT INTO users (name, email) VALUES (?, ?) RETURNING id")) {
             ps.setString(1, "Alice");
             ps.setString(2, "alice@test.com");
             var rs = ps.executeQuery();
@@ -87,20 +86,20 @@ class PostgreSQLIntegrationTest {
         }
 
         assertThatThrownBy(() -> {
-            try (var ps = conn.prepareStatement("INSERT INTO users (name, email) VALUES (?, ?)")) {
-                ps.setString(1, "Bob2");
-                ps.setString(2, "bob@test.com"); // duplicate email
-                ps.executeUpdate();
-            }
-        }).isInstanceOf(SQLException.class);
+                    try (var ps = conn.prepareStatement("INSERT INTO users (name, email) VALUES (?, ?)")) {
+                        ps.setString(1, "Bob2");
+                        ps.setString(2, "bob@test.com"); // duplicate email
+                        ps.executeUpdate();
+                    }
+                })
+                .isInstanceOf(SQLException.class);
     }
 
     @Test
     void shouldJoinUsersAndOrders() throws SQLException {
         // Insert user
         int userId;
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO users (name, email) VALUES (?, ?) RETURNING id")) {
+        try (var ps = conn.prepareStatement("INSERT INTO users (name, email) VALUES (?, ?) RETURNING id")) {
             ps.setString(1, "Carol");
             ps.setString(2, "carol@test.com");
             var rs = ps.executeQuery();
@@ -109,8 +108,7 @@ class PostgreSQLIntegrationTest {
         }
 
         // Insert orders
-        try (var ps = conn.prepareStatement(
-                "INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)")) {
+        try (var ps = conn.prepareStatement("INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)")) {
             ps.setInt(1, userId);
             ps.setDouble(2, 99.99);
             ps.setString(3, "SHIPPED");
@@ -123,7 +121,8 @@ class PostgreSQLIntegrationTest {
         }
 
         // Join query
-        try (var ps = conn.prepareStatement("""
+        try (var ps = conn.prepareStatement(
+                """
                 SELECT u.name, o.total, o.status
                 FROM users u JOIN orders o ON u.id = o.user_id
                 WHERE u.id = ?
@@ -137,8 +136,7 @@ class PostgreSQLIntegrationTest {
                 orders.add(Map.of(
                         "name", rs.getString("name"),
                         "total", rs.getDouble("total"),
-                        "status", rs.getString("status")
-                ));
+                        "status", rs.getString("status")));
             }
 
             assertThat(orders).hasSize(2);

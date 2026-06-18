@@ -1,10 +1,9 @@
 package com.denjossal.study.dsa.stack;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.EmptyStackException;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ArrayStackTest {
 
@@ -51,15 +50,13 @@ class ArrayStackTest {
     @Test
     void shouldThrowOnPopEmpty() {
         var stack = new ArrayStack<Integer>();
-        assertThatThrownBy(stack::pop)
-                .isInstanceOf(EmptyStackException.class);
+        assertThatThrownBy(stack::pop).isInstanceOf(EmptyStackException.class);
     }
 
     @Test
     void shouldThrowOnPeekEmpty() {
         var stack = new ArrayStack<Integer>();
-        assertThatThrownBy(stack::peek)
-                .isInstanceOf(EmptyStackException.class);
+        assertThatThrownBy(stack::peek).isInstanceOf(EmptyStackException.class);
     }
 
     @Test

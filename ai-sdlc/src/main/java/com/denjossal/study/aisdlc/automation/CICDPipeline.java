@@ -16,9 +16,16 @@ import java.util.*;
  */
 public class CICDPipeline {
 
-    public enum StageStatus { PENDING, RUNNING, PASSED, FAILED, SKIPPED }
+    public enum StageStatus {
+        PENDING,
+        RUNNING,
+        PASSED,
+        FAILED,
+        SKIPPED
+    }
 
     public record Stage(String name, StageStatus status, String output, Instant startedAt) {}
+
     public record PipelineRun(String id, String branch, List<Stage> stages, Instant triggeredAt) {}
 
     public record AIReviewFinding(String severity, String file, int line, String message, String suggestion) {}
@@ -38,12 +45,18 @@ public class CICDPipeline {
         // Stage 2: AI Code Review (new — AI enhancement)
         var findings = aiCodeReview(changedFiles);
         var reviewStatus = findings.stream().anyMatch(f -> f.severity().equals("critical"))
-                ? StageStatus.FAILED : StageStatus.PASSED;
-        stages.add(new Stage("ai-review", reviewStatus,
-                "%d findings (%d critical)".formatted(
-                        findings.size(),
-                        findings.stream().filter(f -> f.severity().equals("critical")).count()
-                ), now));
+                ? StageStatus.FAILED
+                : StageStatus.PASSED;
+        stages.add(new Stage(
+                "ai-review",
+                reviewStatus,
+                "%d findings (%d critical)"
+                        .formatted(
+                                findings.size(),
+                                findings.stream()
+                                        .filter(f -> f.severity().equals("critical"))
+                                        .count()),
+                now));
 
         // Stage 3: Build
         if (reviewStatus == StageStatus.FAILED) {
@@ -76,17 +89,19 @@ public class CICDPipeline {
         for (var file : changedFiles) {
             if (file.contains("password") || file.contains("secret")) {
                 findings.add(new AIReviewFinding(
-                        "critical", file, 1,
+                        "critical",
+                        file,
+                        1,
                         "Potential secret in filename",
-                        "Use environment variables or a secrets manager"
-                ));
+                        "Use environment variables or a secrets manager"));
             }
             if (file.endsWith("Controller.java")) {
                 findings.add(new AIReviewFinding(
-                        "medium", file, 0,
+                        "medium",
+                        file,
+                        0,
                         "Controller changed — verify input validation",
-                        "Ensure @Valid annotations on request bodies"
-                ));
+                        "Ensure @Valid annotations on request bodies"));
             }
         }
         return findings;

@@ -1,10 +1,9 @@
 package com.denjossal.study.dsa.queue;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.NoSuchElementException;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class CircularArrayQueueTest {
 
@@ -69,15 +68,13 @@ class CircularArrayQueueTest {
     @Test
     void shouldThrowOnDequeueEmpty() {
         var queue = new CircularArrayQueue<Integer>();
-        assertThatThrownBy(queue::dequeue)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(queue::dequeue).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
     void shouldThrowOnPeekEmpty() {
         var queue = new CircularArrayQueue<Integer>();
-        assertThatThrownBy(queue::peek)
-                .isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(queue::peek).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test

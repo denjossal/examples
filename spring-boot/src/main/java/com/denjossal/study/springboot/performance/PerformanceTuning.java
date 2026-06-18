@@ -63,15 +63,11 @@ public class PerformanceTuning {
      * Rule: parallelize only when data is large AND operation is CPU-intensive.
      */
     public static long sumSquaresSequential(List<Integer> numbers) {
-        return numbers.stream()
-                .mapToLong(n -> (long) n * n)
-                .sum();
+        return numbers.stream().mapToLong(n -> (long) n * n).sum();
     }
 
     public static long sumSquaresParallel(List<Integer> numbers) {
-        return numbers.parallelStream()
-                .mapToLong(n -> (long) n * n)
-                .sum();
+        return numbers.parallelStream().mapToLong(n -> (long) n * n).sum();
     }
 
     // ─── Caching Pattern ────────────────────────────────────────────────────
