@@ -1,13 +1,30 @@
 # Java Study & Portfolio
 
-A multi-module Maven project for structured Java learning, organized by topic.
+[![CI](https://github.com/denjossal/examples/actions/workflows/ci.yml/badge.svg)](https://github.com/denjossal/examples/actions/workflows/ci.yml)
+
+A multi-module Maven project for structured Java learning, organized by topic. Each
+module has its own README with details and tradeoffs.
+
+## Highlights
+
+If you're skimming, start here:
+
+- **[Distributed lock](./integration-tests)** — Redis `SET NX EX` acquisition with a
+  Lua token-release script, verified under concurrent contention with Testcontainers.
+- **[Outbox + CDC](./spring-boot)** — transactional outbox with a polling publisher,
+  exercised end-to-end against real PostgreSQL + Kafka in
+  [integration-tests](./integration-tests).
+- **[Resilience patterns](./spring-boot)** — circuit breaker, bulkhead, and retry with
+  backoff, with SLF4J logging of state transitions.
+- **[Real integration tests](./integration-tests)** — Testcontainers spinning up Kafka,
+  PostgreSQL, Redis, and LocalStack (DynamoDB/SQS/S3) instead of mocks.
 
 ## Modules
 
 | Module | Description | Status |
 |--------|-------------|--------|
 | [dsa](./dsa) | Data structures from scratch + Big O analysis | Done |
-| [algorithms](./algorithms) | LeetCode solutions organized by pattern (12 patterns, 22 problems) | Done |
+| [algorithms](./algorithms) | LeetCode solutions organized by pattern (13 patterns, 28 problems) | Done |
 | [java-modern](./java-modern) | Java 8→25 evolution, virtual threads, Stream Gatherers, sealed types | Done |
 | [spring-boot](./spring-boot) | Microservices patterns, resilience, EIP, observability, performance | Done |
 | [ai-sdlc](./ai-sdlc) | AI-SDLC playbook: SDD, prompt engineering, agent orchestration | Done |
@@ -23,6 +40,23 @@ A multi-module Maven project for structured Java learning, organized by topic.
 - Testcontainers (Kafka, LocalStack, PostgreSQL)
 - AWS SDK v2 (DynamoDB, SQS, S3)
 - Apache Kafka Client
+
+## Code Quality
+
+- **CI** — GitHub Actions builds + unit-tests on JDK 25, runs the Testcontainers
+  integration suite, and checks formatting (see [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)).
+- **Coverage** — JaCoCo reports per module under `target/site/jacoco/`.
+- **Formatting** — Spotless with the Palantir Java Format, run under a `lint` profile on
+  JDK 21 (the formatter is not yet compatible with JDK 25):
+
+  ```bash
+  sdk use java 21.0.8-amzn
+  mvn -Plint spotless:check   # verify
+  mvn -Plint spotless:apply   # auto-format
+  ```
+
+  The `java-modern` module and `aws/.../LambdaColdStartOptimization.java` are excluded
+  because they use Java 25 preview syntax the formatter can't parse.
 
 ## Building
 
