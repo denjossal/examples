@@ -1,6 +1,8 @@
 package com.denjossal.study.springboot.resilience;
 
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Retry pattern with exponential backoff — handles transient failures.
@@ -12,6 +14,8 @@ import java.util.function.Supplier;
  * This implementation demonstrates the core algorithm.
  */
 public class RetryWithBackoff {
+
+    private static final Logger log = LoggerFactory.getLogger(RetryWithBackoff.class);
 
     private final int maxAttempts;
     private final long initialDelayMs;
@@ -29,15 +33,21 @@ public class RetryWithBackoff {
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                return action.get();
+                T result = action.get();
+                if (attempt > 1) {
+                    log.info("Retry succeeded on attempt {}/{}", attempt, maxAttempts);
+                }
+                return result;
             } catch (Exception e) {
                 lastException = e;
                 if (attempt < maxAttempts) {
+                    log.warn("Attempt {}/{} failed ({}), retrying in {}ms", attempt, maxAttempts, e.toString(), delay);
                     sleep(delay);
                     delay = (long) (delay * multiplier);
                 }
             }
         }
+        log.error("Retry exhausted after {} attempts", maxAttempts, lastException);
         throw new RetryExhaustedException("Failed after %d attempts".formatted(maxAttempts), lastException);
     }
 
