@@ -15,6 +15,10 @@
     <name>Spring Boot Examples</name>
     <description>Spring Boot examples and microservices patterns</description>
 
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -32,6 +36,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>21</release>
+                </configuration>
             </plugin>
         </plugins>
     </build>
