@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@org.junit.jupiter.api.condition.DisabledIfSystemProperty(named = "java.specification.version", matches = "2[2-9]|[3-9]\\d")
 class UserControllerTest {
 
     @Autowired
