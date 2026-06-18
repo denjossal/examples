@@ -16,3 +16,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local developer overrides (machine-specific env, not for CI)
+scripts/local-env.local.sh
+.env
+

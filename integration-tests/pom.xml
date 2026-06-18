@@ -149,12 +149,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skipTests>${skipIntegrationTests}</skipTests>
-                    <jvm>${user.home}/.sdkman/candidates/java/21.0.8-amzn/bin/java</jvm>
-                    <argLine></argLine>
-                    <environmentVariables>
-                        <DOCKER_HOST>unix:///Users/Dennis_Salcedo/.colima/default/docker.sock</DOCKER_HOST>
-                        <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>/var/run/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
-                    </environmentVariables>
                 </configuration>
             </plugin>
         </plugins>

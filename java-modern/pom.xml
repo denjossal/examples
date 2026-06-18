@@ -15,6 +15,13 @@
     <name>Modern Java</name>
     <description>Java 8-25 evolution, virtual threads, Stream Gatherers, structured concurrency</description>
 
+    <properties>
+        <!-- This module uses Java 25 preview syntax that the Spotless/Palantir formatter
+             (run on JDK 21) cannot parse, so formatting is skipped here. -->
+        <spotless.check.skip>true</spotless.check.skip>
+        <spotless.apply.skip>true</spotless.apply.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -31,7 +38,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>--enable-preview</argLine>
+                    <!-- @{argLine} preserves the JaCoCo agent injected by prepare-agent;
+                         a bare value here would clobber it and zero out coverage. -->
+                    <argLine>@{argLine} --enable-preview</argLine>
                 </configuration>
             </plugin>
         </plugins>

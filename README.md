@@ -26,13 +26,20 @@ A multi-module Maven project for structured Java learning, organized by topic.
 
 ## Building
 
+The project targets Java 21/25, so **run Maven on JDK 25**. On macOS the integration
+tests also need a Docker daemon. The committed build no longer hardcodes any
+machine-specific path — local Docker/JDK config lives in `scripts/local-env.sh`.
+
 ```bash
+# One-time per shell: select JDK 25 + point Testcontainers at Colima
+source scripts/local-env.sh
+
 # Run all unit tests (no Docker required)
 mvn clean test -DskipIntegrationTests=true
 
 # Run everything including integration tests (requires Docker)
 colima start
-mvn clean test
+mvn clean verify
 ```
 
 ## Docker Setup (for integration tests)
@@ -43,6 +50,9 @@ Integration tests use [Testcontainers](https://testcontainers.com/) and require 
 # Start Colima (Docker runtime for macOS)
 colima start
 
+# Load JDK 25 + Docker socket env (sets DOCKER_HOST + the Ryuk socket override)
+source scripts/local-env.sh
+
 # Run only integration tests
 mvn test -pl integration-tests
 
@@ -50,7 +60,11 @@ mvn test -pl integration-tests
 mvn test -DskipIntegrationTests=true
 ```
 
-The Docker socket is configured at: `unix:///Users/Dennis_Salcedo/.colima/default/docker.sock`
+Why the env vars (see `scripts/local-env.sh`): Colima exposes the Docker socket at
+`$HOME/.colima/default/docker.sock`, so `DOCKER_HOST` points there, and
+`TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` tells the Ryuk reaper
+which path to bind-mount inside containers. CI needs none of this — GitHub-hosted
+Linux runners expose Docker at the default socket automatically.
 
 ## Roadmap
 
