@@ -92,6 +92,14 @@
             <version>${postgresql.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Redis (Jedis) -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
