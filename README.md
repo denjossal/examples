@@ -19,6 +19,16 @@ If you're skimming, start here:
 - **[Real integration tests](./integration-tests)** — Testcontainers spinning up Kafka,
   PostgreSQL, Redis, and LocalStack (DynamoDB/SQS/S3) instead of mocks.
 
+## Docs / Learning
+
+Visual, diagram-first explanations of the patterns in this repo (Mermaid diagrams that render
+natively on GitHub), plus curated reading. See [docs/](./docs) for the index, or jump in:
+
+- **[Distributed-systems patterns](./docs/distributed-systems-patterns.md)** — circuit breaker, saga, outbox, EIP, distributed lock as diagrams.
+- **[DSA & algorithms](./docs/dsa-and-algorithms.md)** — structures, traversals, and a pattern decision tree.
+- **[Spring Boot patterns](./docs/spring-boot-patterns.md)** — layered architecture, DI, bean lifecycle, request flow.
+- **[GoF design patterns](./docs/gof-design-patterns.md)** — Strategy, Observer, State, Factory, Decorator.
+
 ## Modules
 
 | Module | Description | Status |
@@ -30,6 +40,7 @@ If you're skimming, start here:
 | [ai-sdlc](./ai-sdlc) | AI-SDLC playbook: SDD, prompt engineering, agent orchestration | Done |
 | [aws](./aws) | AWS serverless: Lambda, EventBridge, DynamoDB single-table design | Done |
 | [integration-tests](./integration-tests) | Real integration tests with Testcontainers (Kafka, DynamoDB, SQS, PostgreSQL) | Done |
+| [docs](./docs) | Learning docs: Mermaid diagrams + curated links (distributed systems, DSA, Spring, GoF) | Done |
 
 ## Tech Stack
 
